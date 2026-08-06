@@ -1,0 +1,294 @@
+# Typhoon PRO — product site
+
+A standalone page for the three PRO machines only: **2.5 PRO, 5 PRO, 10 PRO**.
+No 20 kg, no 30 kg, no company pages — those live on
+[typhoon.coffee](https://typhoon.coffee). This one exists to show the machines
+and the software.
+
+Static HTML, CSS and JavaScript on Three.js. No build step, no framework, no
+bundler — the same shape as `typhoon-configurator/`.
+
+---
+
+## Files
+
+| File | What it is |
+|------|-----------|
+| `index.html` | The page skeleton. Repeating blocks are filled in by `js/ui.js` |
+| `js/content.js` | **Everything editable** — copy, specs, prices, software cards, contacts |
+| `js/scene.js` | Three.js: loads the models and moves them with the scroll |
+| `js/ui.js` | Builds the page from `content.js`, scroll reveals, spec disclosures, the auto-repeat animation |
+| `css/style.css` | All styling |
+| `models/*.glb` | The three machines, ~1 MB each |
+| `img/hero/*.webp` | Opening image — separate desktop and mobile crops |
+| `img/clients/*.webp` | Client logos and photographs, pulled from typhoon.coffee |
+| `js/calculator.js` | Savings calculator — arithmetic ported from `typhoon-roi-calculator/` |
+| `img/logo.svg` | Wordmark, ink-coloured, inverted by CSS on the dark section |
+
+**To change wording, numbers or prices, edit `js/content.js`.** Nothing else
+needs touching for a content change.
+
+---
+
+## Running it locally
+
+Do not open `index.html` from the file system — the models are fetched over
+HTTP and `file://` will block them.
+
+```bash
+npx serve "typhoon-pro-site" -l 8790
+```
+
+Then open <http://localhost:8790>.
+
+---
+
+## Prices
+
+`MODELS[].price` in `js/content.js` is `null` for all three, so each machine
+shows **"Price on request"** next to a quote button. Set it to a string to show
+a figure instead:
+
+```js
+price: '€24,900',
+priceNote: 'Ex-works Prague · shipping quoted separately',
+```
+
+Nothing else changes — the layout is the same either way. They were left empty
+on purpose: there is no verified public PRO price list to publish from, and a
+made-up number on a public page is worse than an ask.
+
+---
+
+## The models
+
+Copied from `typhoon-configurator/dist-baked/`. The default paint (RAL 1015
+ivory body, RAL 2002 vermilion accent) and every fixed-colour part are baked
+in, so they need no config file and no recolouring code.
+
+| File | Size |
+|------|------|
+| `typhoon-10pro.glb` | 1.4 MB |
+| `typhoon-5pro.glb` | 1.1 MB |
+| `typhoon-2pro.glb` | 968 KB |
+
+Geometry is Draco-compressed, so the decoder is loaded from the CDN alongside
+Three.js. To regenerate them after a CAD or colour change, follow
+`typhoon-configurator/dist-baked/README.md`, then copy the three files here.
+
+**A changed model must be given a new filename** — `vercel.json` marks
+`/models/*` immutable for a year, so browsers will otherwise keep serving the
+old one.
+
+---
+
+## How the scroll choreography works
+
+One `<canvas>`, fixed, behind the whole page. Three models, loaded once.
+
+**Each machine belongs to one chapter and never leaves it.** There is no
+opening line-up and no carousel: a machine rises into view with its section,
+turns while that section is pinned, and leaves upward as the next arrives.
+Scroll back and it returns exactly the way it left, because none of this is
+animation state — position, size and angle are all functions of where the page
+is. An earlier version slid the machines sideways between chapters and that
+read as them crawling away whenever you scrolled back up.
+
+The layout — not the script — decides where a machine goes. Each chapter
+reserves an empty `.chapter-void` block: the left column of the sticky split on
+desktop, a full-width block above the copy on narrow screens. `scene.js`
+measures it with `getBoundingClientRect()` and fits the machine inside. Move
+the block in CSS and the machine follows.
+
+Three details worth keeping:
+
+- **`FRONT` is the start and end angle** of every turn — door, screen and
+  control panel towards the viewer, swung a little off dead-on. **Check it by
+  eye after any model re-export.** The baked files carry their own
+  orientation, and a machine that spends its whole chapter showing the cyclone
+  is the most obvious thing that can be wrong here.
+- **Machines are fitted on their rotation-safe radius**, `hypot(x, z)`, not
+  their front-on width. A machine turning through 360° is widest on the
+  diagonal, and fitting the narrow face means it grows into the copy halfway
+  through the turn.
+- **Position and scale are locked to the box with no damping.** The machine is
+  part of the page; a damped position lags the scroll and reads as drift. Only
+  the turn is smoothed.
+
+Chapters are `240dvh` tall with a sticky inner panel; that extra height is the
+scroll budget the machine turns through. The canvas is only drawn while a
+chapter is on screen — every section above and below paints its own background
+over it.
+
+---
+
+## The opening photograph
+
+The hero is a photograph, not 3D. Three machines rotating on the first screen
+was the wrong first thing to show someone: it says "here is a CAD model" when
+the job of that screen is to say "this belongs in a coffee bar". The machines
+now appear one at a time, in their own chapters, once a visitor is already
+reading about them.
+
+It is art-directed rather than resized. `img/hero/cafe-desktop.webp` keeps the
+wide frame — machine on the left, copy in the dark half on the right — and
+`cafe-hero-mobile.webp` is a separate 4:5 crop around the machine, because that
+composition has no room on a phone. A `<picture>` element picks between them at
+760 px.
+
+Both were lifted out of the original render with a gamma curve rather than a
+brightness multiply: gamma opens the shadows and leaves the lamps where the
+lighting put them, where a flat multiply would blow them out. To regenerate
+from a new render, that recipe is a few lines of Pillow — gamma 1.20,
+brightness 1.06, saturation 1.04.
+
+## Lighting
+
+A glTF carries geometry and materials, not lights. Without an environment the
+steel and glass render flat and grey — `RoomEnvironment` through a
+`PMREMGenerator` is what makes them read as metal.
+
+There is no shadow map. A shadow needs a catcher plane, and a grey plane on a
+paper-white page looks worse than no shadow, so each machine carries a soft
+radial-gradient sprite under it instead.
+
+---
+
+## The auto-repeat animation
+
+The dark software chapter draws a roast rather than describing one: the
+reference profile as a ghost line, the live roast tracking it, power and
+airflow on their own strip underneath, the stage bar advancing Prepare → Ready
+→ Loading → Roasting → Unloading → Cooling, and the batch counter climbing —
+which is the actual claim, that nothing has to cool down in between.
+
+**Rate of rise is defined first and the bean curve is its integral**, not the
+other way round:
+
+```
+ror(s) = A · (1 − e^(−s/τ₁)) · e^(−s/τ₂)      s = minutes past the turning point
+```
+
+A rate that starts at zero, swells shortly after the turning point and decays
+towards the drop is what a roast does, and its integral is automatically the
+smooth S the bean curve is supposed to be. `A` is solved so the integral lands
+exactly on the drop temperature. Doing it the other way — draw a shape, then
+differentiate — is what produced the sharp corners in the first version: the
+turning point came out a V and the RoR a spike.
+
+Everything else on the chart is smooth for the same reason. Both halves of the
+bean curve meet the turning point with **zero slope**, so the minimum is a round
+bottom. Power and airflow ramp over about nine seconds instead of stepping,
+because a heater cannot make a right angle either.
+
+Roast length is 6:45 to the drop on a 7:30 axis, which is what the machine
+actually does. The numbers live at the top of the block in `js/ui.js`
+(`TP_T`, `FC_T`, `DROP_T`, `CHARGE`, `TP_C`, `END_C`, `POWER`, `FAN`).
+
+Two tabs, matching the two auto-repeat modes the software actually has: by
+power and by temperature. **Note:** `company-knowledge/product/software.md`
+still lists a third, "by events" — that page is out of date.
+
+It runs only while on screen, and reduced-motion visitors get the finished
+roast with no loop.
+
+## Deployment
+
+Static site on Vercel; project root is the output directory. `vercel.json` sets
+the immutable cache headers on `/models` and `/img`.
+
+Suggested subdomain: `pro.typhoon.coffee`, linked from the main site's product
+section.
+
+---
+
+## Things that will bite
+
+- **Fonts come from Google Fonts.** If the site must work without third-party
+  requests, self-host Inter Tight and JetBrains Mono and change the `<link>`.
+- **Three.js and the Draco decoder come from jsDelivr.** Same caveat; vendor
+  them into the repo if the CDN is not acceptable.
+- **`window.__typhoon`** is left in `scene.js` on purpose — it exposes the
+  scene, camera, rigs and the choreography function for tuning from the
+  console. Harmless, but remove it if you would rather not ship it.
+
+---
+
+## The model finder
+
+The quiz from typhoon.coffee, narrowed to the PRO range. The two questions and
+their options are the site's; the routing is `QUIZ.byVolume` / `QUIZ.byStatus`
+in `content.js`.
+
+**Weekly volume decides it. Status only breaks the tie** when someone has not
+picked a volume — which is most first-time visitors, and the reason the status
+question exists at all. The cut-offs come from real capacity over a 40-hour
+week: 2.5 PRO 600 kg, 5 PRO 1200 kg, 10 PRO 2400 kg. Anything past that routes
+to `QUIZ.bigger`, which hands over to the main site rather than pretending a
+10 PRO covers 4,500 kg a week.
+
+---
+
+## The FAQ
+
+`FAQ` in `content.js` — eight categories, tabbed, answers as native
+`<details>` so the browser handles the open state, the keyboard and
+find-in-page.
+
+**Where the answers come from, because it is not one source:**
+
+- **"Pricing & payment" is typhoon.coffee's wording**, verbatim.
+- **The other seven were written from `company-knowledge/`** —
+  `sales/objections.md`, `product/specs.md`, `product/software.md`,
+  `service/warranty.md`, `service/onboarding.md`, `product/models.md`. The
+  main site keeps those categories behind Framer tabs that only fetch their
+  content on a real click, and that could not be scraped; the knowledge base
+  is the same material our sales team quotes from, so the numbers agree.
+
+If the exact site wording matters for a category, paste it over the entry in
+`FAQ.groups` — nothing else needs to change.
+
+---
+
+## The clients block
+
+`CLIENTS` in `content.js` — names, countries and role badges taken from
+typhoon.coffee/clients. The logos and photographs were **downloaded and
+re-encoded into `img/clients/`** rather than hot-linked from the main site's
+CDN, so this page does not break when that site reorganises its assets. Nine
+are shown, chosen for the PRO range (2.5 / 5 / 10 kg) and geographic spread;
+the full list of 46 lives on the main site, which the button links to.
+
+To swap one out: add `<key>.webp` (4:3) and `<key>-logo.webp` to
+`img/clients/`, then add the entry to `CLIENTS.items`.
+
+---
+
+## The savings calculator
+
+**The arithmetic is the existing calculator, verbatim.** Every constant, every
+formula and every number on screen comes from
+`typhoon-roi-calculator/typhoon-roi-calculator.html` — it was not re-derived.
+It now lives in `js/calculator.js`.
+
+Exactly two things changed in the logic:
+
+- the inline `onclick` attributes became `addEventListener` calls, so it can be
+  a module like the rest of the page;
+- the original's `document.title = "Typhoon saves …"` was **removed**. On its
+  own page that was fine; on this one it renamed the whole tab every time a
+  slider moved.
+
+**The design is this site's**, not the original's. The markup was re-written
+with `calc-` prefixed class names — the original used `.hero` and `.page`,
+which collide head-on with this page — and styled in the same system as
+everything else: Inter Tight and JetBrains Mono, the paper/ink palette, brand
+blue for the money, hairline rules instead of cards and shadows. No iframe: it
+is part of the page, so its type scale matches its neighbours.
+
+Sanity check after any edit — at the defaults (10 kg, 6,500 kg/month, EUR) it
+must read **€5,684** total, **€1,702** labour, **€731** energy, **€3,250**
+defects. Those are the original's numbers.
+
+**If the calculator changes upstream**, port the logic across again rather than
+editing both: `typhoon-roi-calculator/` stays the source of truth for the maths.

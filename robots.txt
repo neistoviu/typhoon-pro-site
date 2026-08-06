@@ -1,0 +1,3 @@
+# Preview build. Not for indexing — the live site is typhoon.coffee.
+User-agent: *
+Disallow: /

@@ -1,0 +1,977 @@
+/* ===========================================================================
+   Typhoon PRO — product site
+   Light paper, graphite ink, one vermilion accent, one dark chapter.
+   =========================================================================== */
+
+:root{
+  --paper:#f1f0ec;
+  --paper-2:#e8e6e0;
+  --ink:#15171b;
+  --ink-mid:#5a5e66;
+  --ink-soft:#8b8f98;
+  --line:rgba(21,23,27,.13);
+  --line-soft:rgba(21,23,27,.07);
+
+  /* Brand blue, sampled from the logotype. The same idea needs two values:
+     the mark's blue is near-black against the dark chapter, so that one gets
+     a lifted version rather than a different colour. */
+  --accent:#1220d0;
+  --accent-lit:#5f9dff;
+
+  --dark:#0f1a20;
+  --dark-2:#16252d;
+  --dark-line:rgba(255,255,255,.14);
+  --dark-ink:#eef2f4;
+  --dark-mid:#9fb2ba;
+
+  --wrap:1440px;
+  --pad:clamp(20px,5vw,72px);
+
+  --ease:cubic-bezier(.22,.61,.36,1);
+  color-scheme:light;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font:400 16px/1.62 'Inter Tight',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+.mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+
+a{color:inherit;text-decoration:none}
+img{max-width:100%;height:auto;display:block}
+ul,ol{list-style:none}
+
+.wrap{max-width:var(--wrap);margin-inline:auto;padding-inline:var(--pad);width:100%}
+
+/* --- shared type -------------------------------------------------------- */
+
+.eyebrow{
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);font-weight:500;
+}
+
+.h2{
+  font-size:clamp(2rem,4.4vw,3.9rem);font-weight:600;
+  letter-spacing:-.035em;line-height:1.02;
+}
+.h3{
+  font-size:clamp(1.35rem,2.2vw,2rem);font-weight:600;
+  letter-spacing:-.025em;line-height:1.12;
+}
+.lede{
+  font-size:clamp(1.02rem,1.35vw,1.28rem);line-height:1.55;
+  color:var(--ink-mid);max-width:62ch;
+}
+
+/* --- buttons ------------------------------------------------------------ */
+
+.btn{
+  --bg:var(--ink);--fg:var(--paper);
+  display:inline-flex;align-items:center;gap:.6em;
+  background:var(--bg);color:var(--fg);
+  padding:.92em 1.6em;border-radius:100px;
+  font-size:14px;font-weight:500;letter-spacing:-.01em;
+  border:1px solid var(--bg);
+  transition:transform .35s var(--ease),background .3s,color .3s,border-color .3s;
+  will-change:transform;
+}
+.btn:hover{transform:translateY(-2px);--bg:var(--accent)}
+.btn-ghost{--bg:transparent;--fg:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{--bg:transparent;--fg:var(--accent);border-color:var(--accent)}
+.btn-sm{padding:.62em 1.15em;font-size:13px;white-space:nowrap}
+.btn-lg{padding:1.05em 2em;font-size:15px}
+
+/* ===========================================================================
+   Boot screen
+   =========================================================================== */
+
+#boot{
+  position:fixed;inset:0;z-index:200;background:var(--paper);
+  display:grid;place-items:center;
+  transition:opacity .7s var(--ease),visibility .7s;
+}
+#boot.done{opacity:0;visibility:hidden}
+.boot-inner{display:grid;justify-items:center;gap:22px;width:min(240px,62vw)}
+.boot-logo{width:138px;opacity:.85}
+.boot-bar{width:100%;height:1px;background:var(--line);overflow:hidden}
+.boot-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s var(--ease)}
+.boot-pct{font-size:11px;letter-spacing:.14em;color:var(--ink-soft)}
+
+/* ===========================================================================
+   The 3D canvas — fixed behind everything
+   =========================================================================== */
+
+#stage{
+  position:fixed;inset:0;width:100vw;height:100dvh;
+  z-index:0;pointer-events:none;
+  opacity:0;transition:opacity .9s var(--ease);
+}
+#stage.on{opacity:1}
+
+main,.nav,.foot{position:relative;z-index:1}
+
+/* ===========================================================================
+   Nav
+   =========================================================================== */
+
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  display:flex;align-items:center;gap:24px;
+  padding:18px var(--pad);
+  transition:background .4s,border-color .4s,padding .4s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav.stuck{
+  background:color-mix(in srgb,var(--paper) 82%,transparent);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-bottom-color:var(--line-soft);
+  padding-block:12px;
+}
+.nav.on-dark{color:var(--dark-ink)}
+.nav.on-dark.stuck{
+  background:color-mix(in srgb,var(--dark) 80%,transparent);
+  border-bottom-color:var(--dark-line);
+}
+.nav.on-dark .btn{--bg:var(--dark-ink);--fg:var(--dark)}
+.nav.on-dark .nav-brand img{filter:invert(1)}
+
+.nav-brand{display:flex;align-items:center;gap:14px;flex:0 0 auto}
+.nav-brand img{width:116px}
+.nav-brand span{
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;opacity:.55;
+  padding-left:14px;border-left:1px solid currentColor;
+}
+.nav.on-dark .nav-brand img{filter:brightness(0) invert(1)}
+
+.nav-links{margin-left:auto;display:flex;gap:26px;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.nav-links a{opacity:.62;transition:opacity .25s,color .25s}
+.nav-links a:hover{opacity:1;color:var(--accent)}
+@media (max-width:860px){.nav-links{display:none}}
+/* A phone has room for the mark and the ask, and nothing else. */
+@media (max-width:620px){
+  .nav{gap:12px;padding-inline:var(--pad)}
+  .nav-brand img{width:94px}
+  .nav-brand span{display:none}
+  .btn-sm{padding:.58em .95em;font-size:12px}
+}
+
+/* ===========================================================================
+   Hero
+   =========================================================================== */
+
+.hero{
+  position:relative;isolation:isolate;color:var(--ink);
+  min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;
+  padding-top:clamp(104px,14vh,164px);padding-bottom:clamp(24px,4vh,44px);
+}
+.hero .eyebrow{color:var(--accent)}
+
+.hero-media{position:absolute;inset:0;z-index:-1;display:block}
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center}
+/* The machines sit centre-right on a pale sweep, so the copy takes the empty
+   left third and the scrim only lifts that side towards the paper the rest of
+   the page is made of. */
+.hero-media::after{
+  content:'';position:absolute;inset:0;
+  background:
+    linear-gradient(90deg,rgba(244,243,240,.94) 0%,rgba(244,243,240,.80) 26%,
+                          rgba(244,243,240,.24) 46%,rgba(244,243,240,0) 62%),
+    linear-gradient(to top,rgba(244,243,240,.55) 0%,rgba(244,243,240,0) 26%);
+}
+
+.hero-grid{display:grid;flex:1;align-items:center}
+/* No max-width here: the headline sets its own line breaks and must not
+   be re-wrapped by a measure meant for the paragraph under it. */
+.hero-copy{
+  display:grid;gap:clamp(12px,1.8vh,22px);align-content:center;
+  grid-column:1;                       /* the empty side of the frame */
+}
+@media (min-width:1001px){
+  .hero-grid{grid-template-columns:minmax(0,1.02fr) minmax(0,1fr)}
+}
+
+.hero-title{
+  font-size:clamp(2.4rem,4.6vw,4.6rem);font-weight:600;
+  letter-spacing:-.045em;line-height:.95;
+  text-wrap:balance;
+}
+.hero-title .ln{display:block;overflow:hidden;white-space:nowrap}
+@media (max-width:640px){.hero-title .ln{white-space:normal}}
+.hero-title .ln > i{
+  display:block;font-style:normal;
+  transform:translateY(105%);
+  transition:transform 1.05s var(--ease);
+}
+.hero.ready .hero-title .ln > i{transform:translateY(0)}
+.hero-title .ln:nth-child(2) > i{transition-delay:.09s}
+.hero-title .ln:nth-child(3) > i{transition-delay:.18s}
+
+.hero-sub{
+  font-size:clamp(.98rem,1.1vw,1.14rem);line-height:1.55;
+  color:var(--ink-mid);max-width:42ch;
+}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+
+/* Phones get the portrait crop, so the copy drops to the bottom of the frame
+   where that crop leaves room, instead of into the machine. */
+@media (max-width:1000px){
+  .hero{padding-top:clamp(88px,11vh,116px)}
+  .hero-grid{align-items:end}
+  .hero-copy{grid-column:1}
+}
+
+.hero-foot{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;
+}
+.scroll-hint{
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-soft);
+  display:flex;align-items:center;gap:10px;
+}
+.scroll-hint i{
+  width:1px;height:28px;background:var(--line);position:relative;overflow:hidden;
+}
+.scroll-hint i::after{
+  content:'';position:absolute;inset-inline:0;height:10px;background:var(--accent);
+  animation:trickle 2.1s var(--ease) infinite;
+}
+@keyframes trickle{0%{top:-10px}60%,100%{top:28px}}
+
+.hero-badges{
+  display:flex;gap:0;flex-wrap:wrap;font-size:10px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-soft);
+}
+.hero-badges li{padding:0 16px;border-left:1px solid var(--line)}
+.hero-badges li:last-child{padding-right:0}
+@media (max-width:700px){
+  .hero-badges li{padding:0 10px}
+  .hero-badges li:first-child{padding-left:0;border-left:0}
+}
+
+/* ===========================================================================
+   Model finder
+   =========================================================================== */
+
+.quiz{padding-block:clamp(70px,11vh,150px);background:var(--paper);position:relative;z-index:2}
+.quiz-head{display:grid;gap:16px;max-width:760px;margin-bottom:clamp(30px,4.5vh,52px)}
+.quiz-head .h2{max-width:16ch}
+
+.quiz-body{display:grid;gap:clamp(26px,4vh,44px)}
+.quiz-q{border:0;display:grid;gap:14px}
+.quiz-label{
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+  padding:0;
+}
+.quiz-opts{display:flex;gap:9px;flex-wrap:wrap}
+.quiz-opt{
+  font:inherit;font-size:.94rem;letter-spacing:-.01em;
+  padding:.78em 1.35em;border-radius:100px;cursor:pointer;
+  background:transparent;color:var(--ink);border:1px solid var(--line);
+  transition:border-color .25s,background .25s,color .25s,transform .3s var(--ease);
+}
+.quiz-opt:hover{border-color:var(--ink-soft);transform:translateY(-2px)}
+.quiz-opt[aria-pressed="true"]{
+  background:var(--accent);border-color:var(--accent);color:#fff;
+}
+
+.quiz-result{
+  margin-top:clamp(30px,5vh,56px);
+  border:1px solid var(--line);border-radius:14px;
+  padding:clamp(24px,3.4vw,44px);
+  display:grid;gap:14px;justify-items:start;
+  background:var(--paper-2);
+  animation:quizIn .5s var(--ease) both;
+}
+@keyframes quizIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.quiz-result-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.quiz-result-name{font-size:clamp(1.9rem,3.6vw,3rem);font-weight:600;letter-spacing:-.04em;line-height:1}
+.quiz-result-lead{font-size:clamp(1.02rem,1.4vw,1.25rem);font-weight:500;letter-spacing:-.02em}
+.quiz-result-body{color:var(--ink-mid);font-size:.96rem;line-height:1.6;max-width:60ch}
+
+.quiz-figures{
+  display:flex;gap:0;flex-wrap:wrap;margin-top:4px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  width:100%;
+}
+.quiz-figures > div{padding:14px 26px 14px 0;margin-right:26px;border-right:1px solid var(--line)}
+.quiz-figures > div:last-child{border-right:0}
+.quiz-figures dt{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.quiz-figures dd{font-size:1.35rem;font-weight:600;letter-spacing:-.03em;margin-top:5px}
+
+.quiz-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+
+/* ===========================================================================
+   Model chapters
+   =========================================================================== */
+
+/* The extra height is the scroll budget the machine turns through. */
+.chapter{position:relative;min-height:240dvh}
+
+.chapter-inner{
+  position:sticky;top:0;min-height:100dvh;
+  display:grid;align-items:center;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(20px,4vw,64px);
+  padding:clamp(84px,11vh,128px) var(--pad) clamp(32px,5vh,64px);
+  max-width:var(--wrap);margin-inline:auto;
+}
+/* The left column is the machine's: an empty box for the 3D to be drawn
+   into, and the colour presets sitting under it. `.chapter-void` stays empty
+   on purpose — scene.js measures exactly that box to size and place the
+   model, so anything put inside it would change the framing. */
+.chapter-stage{
+  align-self:stretch;display:flex;flex-direction:column;
+  gap:clamp(14px,2vh,26px);min-width:0;
+}
+.chapter-void{flex:1;min-height:0}
+
+.chapter-panel{
+  display:grid;gap:clamp(11px,1.7vh,24px);align-content:center;
+  max-width:520px;
+}
+
+.chapter-tag{
+  display:flex;align-items:baseline;gap:14px;
+  font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+}
+.chapter-tag b{color:var(--accent);font-weight:500}
+
+.chapter-name{
+  font-size:clamp(2.1rem,4.6vw,4.1rem);font-weight:600;
+  letter-spacing:-.04em;line-height:.98;
+}
+.chapter-lead{
+  font-size:clamp(1.05rem,1.5vw,1.4rem);font-weight:500;
+  letter-spacing:-.02em;line-height:1.3;
+}
+.chapter-body{color:var(--ink-mid);font-size:.95rem;line-height:1.56;max-width:44ch}
+
+.stat-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border-block:1px solid var(--line);
+}
+.stat-row div{background:var(--paper);padding:18px 12px 16px}
+.stat-row .v{
+  font-size:clamp(2.1rem,3.4vw,3.3rem);
+  font-weight:600;letter-spacing:-.055em;line-height:.92;
+  font-variant-numeric:tabular-nums;
+}
+.stat-row .u{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-top:10px;
+}
+.stat-row .l{font-size:11.5px;color:var(--ink-soft);margin-top:5px;line-height:1.3}
+@media (max-width:520px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+
+.chapter-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.price-tag{display:grid;gap:2px}
+.price-tag .p{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:500;letter-spacing:-.02em}
+.price-tag .n{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft)}
+
+/* --- spec disclosure ---------------------------------------------------- */
+
+.specs{border-top:1px solid var(--line)}
+.specs details{border-bottom:1px solid var(--line)}
+.specs summary{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 0;cursor:pointer;list-style:none;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-mid);transition:color .25s;
+}
+.specs summary::-webkit-details-marker{display:none}
+.specs summary:hover{color:var(--ink)}
+.specs summary .ic{
+  width:11px;height:11px;position:relative;flex:0 0 auto;transition:transform .4s var(--ease);
+}
+.specs summary .ic::before,.specs summary .ic::after{
+  content:'';position:absolute;inset:50% 0 auto;height:1px;background:currentColor;
+}
+.specs summary .ic::after{transform:rotate(90deg);transition:opacity .3s}
+.specs details[open] summary{color:var(--ink)}
+.specs details[open] summary .ic{transform:rotate(180deg)}
+.specs details[open] summary .ic::after{opacity:0}
+.specs dl{padding-bottom:16px;display:grid;gap:1px}
+.specs dl > div{
+  display:flex;justify-content:space-between;gap:16px;padding:7px 0;
+  border-top:1px solid var(--line-soft);font-size:13px;
+}
+.specs dt{color:var(--ink-soft)}
+.specs dd{font-family:'JetBrains Mono',monospace;font-size:12.5px;text-align:right}
+
+/* --- mobile: model sits above the text --------------------------------- */
+
+/* Short desktop windows: the panel has to fit inside one sticky screen,
+   so the type steps down rather than spilling over the nav. */
+@media (min-width:1001px) and (max-height:840px){
+  .chapter-name{font-size:clamp(1.85rem,3.3vw,2.7rem)}
+  .chapter-lead{font-size:1.04rem}
+  .chapter-body{font-size:.89rem;line-height:1.5}
+  .chapter-inner{padding-top:clamp(70px,9vh,98px)}
+  .stat-row .v{font-size:clamp(1.8rem,2.6vw,2.4rem)}
+  .stat-row div{padding:13px 10px 12px}
+}
+
+/* Narrow screens drop the sticky column: the machine gets a real block of
+   its own at the top of each chapter and scrolls with the page, so the
+   text below can never end up on top of it. */
+@media (max-width:1000px){
+  .chapter{min-height:0}
+  .chapter-inner{
+    position:relative;min-height:0;
+    grid-template-columns:1fr;
+    align-items:start;
+    padding-top:clamp(78px,10vh,110px);
+    padding-bottom:clamp(56px,9vh,90px);
+  }
+  .chapter-void{flex:none;height:40dvh}
+  .chapter-panel{max-width:none}
+}
+
+/* ===========================================================================
+   Software — the one dark chapter
+   =========================================================================== */
+
+.software{
+  background:var(--dark);color:var(--dark-ink);
+  padding-block:clamp(80px,13vh,170px);
+  position:relative;z-index:2;                 /* covers the canvas */
+}
+.software .eyebrow{color:var(--accent-lit)}
+.software .lede{color:var(--dark-mid)}
+
+.sw-head{display:grid;gap:18px;max-width:900px;margin-bottom:clamp(40px,6vh,80px)}
+
+/* --- auto-repeat explainer --------------------------------------------- */
+
+.repeat{margin-top:0}
+.repeat-head{display:grid;gap:14px;max-width:620px;margin-bottom:30px}
+.repeat-head p{color:var(--dark-mid);font-size:1rem;line-height:1.6}
+
+.repeat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.repeat-tabs button{
+  font:inherit;font-size:11px;letter-spacing:.11em;text-transform:uppercase;
+  padding:.7em 1.2em;border-radius:100px;cursor:pointer;
+  background:transparent;color:var(--dark-mid);
+  border:1px solid var(--dark-line);
+  transition:color .3s,border-color .3s,background .3s;
+}
+.repeat-tabs button:hover{color:var(--dark-ink)}
+.repeat-tabs button[aria-selected="true"]{
+  background:var(--accent-lit);border-color:var(--accent-lit);color:#08121f;
+}
+
+.repeat-stage{
+  display:grid;grid-template-columns:1.55fr 1fr;gap:0;
+  border:1px solid var(--dark-line);border-radius:12px;overflow:hidden;
+  background:var(--dark-2);
+}
+.repeat-chart{overflow-x:auto;overscroll-behavior-x:contain;background:#0c1a22}
+.repeat-svg{width:100%;min-width:620px;height:auto;display:block}
+.repeat-side{
+  padding:clamp(20px,2.4vw,32px);display:grid;gap:20px;align-content:start;
+  border-left:1px solid var(--dark-line);
+}
+.repeat-desc{font-size:.94rem;line-height:1.6;color:var(--dark-mid);min-height:7.6em}
+.repeat-readout{display:grid;gap:1px;background:var(--dark-line)}
+.repeat-readout > div{
+  display:flex;justify-content:space-between;gap:12px;
+  background:var(--dark-2);padding:8px 0;font-size:11px;
+}
+.repeat-readout dt{color:var(--dark-mid);letter-spacing:.09em;text-transform:uppercase;font-size:10px;align-self:center}
+.repeat-readout dd{font-size:13px;font-variant-numeric:tabular-nums}
+.repeat-note{font-size:10px;line-height:1.65;letter-spacing:.03em;color:#71858c}
+
+.repeat-stages{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--dark-line);
+  border:1px solid var(--dark-line);border-top:0;
+  border-radius:0 0 10px 10px;overflow:hidden;
+}
+.repeat-stages span{
+  background:var(--dark-2);padding:11px 8px;text-align:center;
+  font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#63787f;
+  transition:color .3s,background .3s;
+}
+.repeat-stages span.on{background:var(--accent-lit);color:#08121f}
+.repeat-stages span.done{color:var(--dark-mid)}
+
+@media (max-width:820px){
+  .repeat-stage{grid-template-columns:1fr}
+  .repeat-side{border-left:0;border-top:1px solid var(--dark-line)}
+  .repeat-desc{min-height:0}
+  .repeat-stages{grid-template-columns:repeat(3,1fr)}
+}
+
+/* --- software feature grid --------------------------------------------- */
+
+.sw-features{
+  margin-top:clamp(48px,8vh,110px);
+  display:grid;gap:1px;background:var(--dark-line);
+  grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--dark-line);
+}
+.sw-features li{background:var(--dark);padding:clamp(22px,2.6vw,34px)}
+.sw-features h4{font-size:1.02rem;font-weight:600;letter-spacing:-.02em;margin-bottom:9px}
+.sw-features p{font-size:.9rem;line-height:1.6;color:var(--dark-mid)}
+
+/* ===========================================================================
+   Comparison
+   =========================================================================== */
+
+.compare{padding-block:clamp(80px,13vh,170px);background:var(--paper);position:relative;z-index:2}
+.compare .h2{margin-bottom:clamp(30px,5vh,56px);max-width:16ch}
+
+.cmp{width:100%;border-collapse:collapse;font-size:.95rem}
+.cmp th,.cmp td{padding:16px 14px;text-align:left;border-bottom:1px solid var(--line)}
+.cmp thead th{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-soft);font-weight:400;
+  border-bottom-color:var(--ink);
+}
+.cmp thead th:last-child{color:var(--accent)}
+.cmp td:first-child{color:var(--ink-soft);width:32%}
+.cmp td:nth-child(2){color:var(--ink-mid);text-decoration:line-through;text-decoration-color:var(--line)}
+.cmp td:last-child{font-weight:500}
+.cmp tbody tr{transition:background .25s}
+.cmp tbody tr:hover{background:var(--paper-2)}
+@media (max-width:620px){
+  .cmp th,.cmp td{padding:12px 8px;font-size:.86rem}
+  .cmp td:first-child{width:36%}
+}
+
+/* ===========================================================================
+   Service
+   =========================================================================== */
+
+.service{padding-block:clamp(70px,11vh,150px);background:var(--paper-2);position:relative;z-index:2}
+.service .h2{max-width:14ch;margin-bottom:clamp(30px,5vh,56px)}
+.svc-list{
+  display:grid;gap:1px;background:var(--line);
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--line);
+}
+.svc-list li{background:var(--paper-2);padding:clamp(22px,2.6vw,34px)}
+.svc-list h3{
+  font-family:'JetBrains Mono',monospace;font-size:1.15rem;font-weight:500;
+  letter-spacing:-.02em;margin-bottom:11px;
+}
+.svc-list p{font-size:.9rem;line-height:1.6;color:var(--ink-mid)}
+
+/* ===========================================================================
+   Contact
+   =========================================================================== */
+
+.cta{
+  padding-block:clamp(90px,16vh,210px);background:var(--paper);
+  position:relative;z-index:2;text-align:center;
+}
+.cta .wrap{display:grid;justify-items:center;gap:22px}
+.cta-title{
+  font-size:clamp(2.2rem,6vw,5.4rem);font-weight:600;
+  letter-spacing:-.045em;line-height:.98;max-width:14ch;
+}
+.cta .lede{text-align:center}
+.cta-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.cta-meta{
+  display:flex;gap:0;flex-wrap:wrap;justify-content:center;margin-top:26px;
+  font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);
+}
+.cta-meta li{padding:0 16px;border-left:1px solid var(--line)}
+.cta-meta li:first-child{border-left:0}
+.cta-meta a:hover{color:var(--accent)}
+
+/* ===========================================================================
+   Footer
+   =========================================================================== */
+
+.foot{background:var(--ink);color:var(--paper);position:relative;z-index:2}
+.foot-grid{
+  display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  padding-block:26px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  opacity:.62;
+}
+.foot a:hover{opacity:1;color:var(--accent-lit)}
+
+/* ===========================================================================
+   Scroll reveal
+   =========================================================================== */
+
+[data-rise]{
+  opacity:0;transform:translateY(22px);
+  transition:opacity .85s var(--ease),transform .85s var(--ease);
+}
+[data-rise].in{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  [data-rise]{opacity:1;transform:none;transition:none}
+  .hero-title .ln > i{transform:none;transition:none}
+  .scroll-hint i::after{animation:none}
+  .btn{transition:none}
+}
+
+/* ===========================================================================
+   Grid step-downs — every grid holds an exact number of cards, so the
+   column counts are declared rather than left to auto-fit.
+   =========================================================================== */
+
+@media (max-width:1000px){
+  .svc-list{grid-template-columns:repeat(2,1fr)}
+  .sw-features{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:820px){
+  .pillar-list{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .svc-list,.sw-features{grid-template-columns:1fr}
+}
+
+/* ===========================================================================
+   Grid step-downs — every grid holds an exact number of cards, so the
+   column counts are declared rather than left to auto-fit.
+   =========================================================================== */
+
+@media (max-width:1000px){
+  .svc-list{grid-template-columns:repeat(2,1fr)}
+  .sw-features{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:820px){
+  .pillar-list{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .svc-list,.sw-features{grid-template-columns:1fr}
+}
+
+/* ===========================================================================
+   Finish — the colour strip
+   =========================================================================== */
+
+.colours{
+  padding-block:clamp(70px,11vh,150px);
+  background:var(--paper);position:relative;z-index:2;overflow:hidden;
+}
+.colours-head{display:grid;gap:18px;justify-items:start;max-width:900px}
+.colours-head .h2{max-width:14ch}
+.colours-head .btn{margin-top:6px}
+
+.swatch-rail{margin-top:clamp(28px,5vh,60px);overflow:hidden}
+.swatch-track{
+  display:flex;align-items:flex-end;gap:clamp(18px,3vw,52px);
+  width:max-content;
+  animation:marquee 78s linear infinite;
+}
+.colours:hover .swatch-track,
+.swatch-rail:focus-within .swatch-track{animation-play-state:paused}
+
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* height + aspect-ratio reserve the width before the image decodes */
+.swatch{flex:0 0 auto;height:clamp(160px,26vh,290px)}
+.swatch img{height:100%;width:100%;max-width:none;object-fit:contain}
+
+/* No marquee for reduced motion: the strip becomes a normal swipeable rail. */
+@media (prefers-reduced-motion:reduce){
+  .swatch-track{animation:none;width:auto}
+  .swatch-rail{overflow-x:auto;padding-inline:var(--pad)}
+}
+
+/* ===========================================================================
+   Colour presets — on the machine, inside its own chapter
+   =========================================================================== */
+
+.presets{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding-top:clamp(12px,1.6vh,20px);border-top:1px solid var(--line);
+}
+.presets-label{
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+}
+.swatches{display:flex;gap:10px}
+.swatch-btn{
+  width:40px;height:40px;padding:0;border-radius:50%;cursor:pointer;
+  background:none;border:1px solid var(--line);
+  display:grid;place-items:center;
+  transition:border-color .25s,transform .25s var(--ease);
+}
+.swatch-btn i{
+  /* two-tone: body on the left, trim on the right — the same split the
+     machine itself has, so the button reads as the paint job it applies */
+  display:block;width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(100deg,var(--a) 0 58%,var(--b) 58% 100%);
+  box-shadow:inset 0 0 0 1px rgba(21,23,27,.16);
+}
+.swatch-btn:hover{transform:translateY(-3px);border-color:var(--ink-soft)}
+.swatch-btn[aria-pressed="true"]{border-color:var(--ink);border-width:2px}
+.presets-name{font-size:10.5px;letter-spacing:.08em;color:var(--ink-soft)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+/* ===========================================================================
+   Clients
+   =========================================================================== */
+
+.clients{padding-block:clamp(70px,11vh,150px);background:var(--paper);position:relative;z-index:2}
+.clients-head{display:grid;gap:16px;max-width:820px;margin-bottom:clamp(32px,5vh,60px)}
+.clients-head .h2{max-width:18ch}
+
+.client-grid{
+  display:grid;gap:clamp(14px,1.6vw,22px);
+  grid-template-columns:repeat(3,1fr);
+}
+.client{
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:var(--paper);
+  transition:border-color .3s,transform .4s var(--ease);
+}
+.client:hover{border-color:var(--ink-soft);transform:translateY(-3px)}
+.client-shot{aspect-ratio:4/3;overflow:hidden;background:var(--paper-2)}
+.client-shot img{width:100%;height:100%;object-fit:cover;
+  transition:transform .7s var(--ease)}
+.client:hover .client-shot img{transform:scale(1.03)}
+.client-body{padding:18px 20px 20px;display:grid;gap:9px;justify-items:start}
+.client-logo{max-height:26px;width:auto;opacity:.75}
+.client h3{font-size:1.05rem;font-weight:600;letter-spacing:-.02em}
+.client-meta{
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);
+}
+.client-meta b{
+  font-weight:400;color:var(--accent);
+  border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);
+  border-radius:100px;padding:3px 9px;
+}
+.clients-cta{margin-top:clamp(26px,4vh,44px)}
+
+@media (max-width:960px){.client-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.client-grid{grid-template-columns:1fr}}
+
+/* ===========================================================================
+   Savings calculator — the existing arithmetic, this site's design
+   =========================================================================== */
+
+.calc{padding-block:clamp(70px,11vh,150px);background:var(--paper-2);position:relative;z-index:2}
+
+.calc-top{display:grid;gap:18px;max-width:900px;margin-bottom:clamp(34px,5vh,60px)}
+.calc-top .h2{max-width:20ch}
+.calc-top .h2 span{color:var(--accent);font-variant-numeric:tabular-nums}
+
+.calc-currency{
+  display:inline-flex;gap:0;margin-top:6px;
+  border:1px solid var(--line);border-radius:100px;padding:3px;width:max-content;
+}
+.calc-cur-btn{
+  font:inherit;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  padding:.72em 1.5em;border:0;border-radius:100px;cursor:pointer;
+  background:transparent;color:var(--ink-soft);
+  transition:background .3s,color .3s;
+}
+.calc-cur-btn:hover{color:var(--ink)}
+.calc-cur-btn.active{background:var(--ink);color:var(--paper)}
+
+.calc-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);
+}
+.calc-inputs,.calc-results{background:var(--paper-2);padding:clamp(24px,3vw,40px)}
+.calc-inputs{display:grid;gap:clamp(26px,3.4vh,40px);align-content:start}
+.calc-h3{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+  font-weight:400;
+}
+
+.calc-field{display:grid;gap:12px}
+.calc-field-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.calc-field-head label{font-size:.95rem;color:var(--ink-mid)}
+.calc-field-head output{
+  font-size:clamp(1.5rem,2.4vw,2.1rem);font-weight:600;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;
+}
+
+/* The track is drawn with a gradient stop at --progress, which the script
+   already sets: same hairline language as the rest of the page, no shadows. */
+.calc-range{
+  -webkit-appearance:none;appearance:none;width:100%;height:22px;
+  background:transparent;cursor:pointer;
+}
+.calc-range::-webkit-slider-runnable-track{
+  height:2px;border-radius:2px;
+  background:linear-gradient(to right,var(--accent) 0 var(--progress),
+                                      rgba(21,23,27,.16) var(--progress) 100%);
+}
+.calc-range::-moz-range-track{height:2px;border-radius:2px;background:rgba(21,23,27,.16)}
+.calc-range::-moz-range-progress{height:2px;border-radius:2px;background:var(--accent)}
+.calc-range::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:18px;height:18px;border-radius:50%;margin-top:-8px;
+  background:var(--accent);border:3px solid var(--paper-2);
+  box-shadow:0 0 0 1px var(--accent);
+  transition:transform .2s var(--ease);
+}
+.calc-range::-moz-range-thumb{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--accent);border:3px solid var(--paper-2);
+  box-shadow:0 0 0 1px var(--accent);
+}
+.calc-range:hover::-webkit-slider-thumb{transform:scale(1.12)}
+.calc-range:focus-visible{outline:none}
+.calc-range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 1px var(--accent),0 0 0 5px color-mix(in srgb,var(--accent) 22%,transparent)}
+
+.calc-ticks,.calc-scale{
+  display:flex;justify-content:space-between;
+  font-size:10px;letter-spacing:.08em;color:var(--ink-soft);
+}
+.calc-ticks span.active{color:var(--accent)}
+
+.calc-link{
+  justify-self:start;font:inherit;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  background:none;border:0;padding:0;cursor:pointer;color:var(--ink-soft);
+  border-bottom:1px solid var(--line);padding-bottom:3px;
+  transition:color .25s,border-color .25s;
+}
+.calc-link:hover{color:var(--accent);border-color:var(--accent)}
+
+.calc-results{display:grid;gap:clamp(24px,3.2vh,38px);align-content:start}
+.calc-total{display:grid;gap:6px}
+.calc-total-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+.calc-total-value{
+  font-size:clamp(3rem,6.4vw,5.6rem);font-weight:600;
+  letter-spacing:-.055em;line-height:.92;color:var(--accent);
+  font-variant-numeric:tabular-nums;
+}
+.calc-total-vs{font-size:10.5px;letter-spacing:.09em;color:var(--ink-soft)}
+
+.calc-breakdown{display:grid;gap:1px;background:var(--line);border-top:1px solid var(--line)}
+.calc-row{
+  background:var(--paper-2);display:grid;
+  grid-template-columns:minmax(72px,auto) 1fr auto;
+  align-items:center;gap:16px;padding:14px 0;
+}
+.calc-row-label{font-size:.92rem;color:var(--ink-mid)}
+.calc-bar{height:2px;background:rgba(21,23,27,.13);position:relative;overflow:hidden}
+.calc-bar i{
+  display:block;height:100%;width:0;background:var(--accent);
+  transition:width .5s var(--ease);
+}
+.calc-row-value{font-size:1rem;font-variant-numeric:tabular-nums}
+
+@media (max-width:900px){
+  .calc-grid{grid-template-columns:1fr}
+}
+
+/* --- the method sheet --------------------------------------------------- */
+
+.calc-modal{
+  position:fixed;inset:0;z-index:120;display:grid;place-items:center;
+  padding:clamp(16px,4vw,48px);
+  background:rgba(21,23,27,.55);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;visibility:hidden;transition:opacity .35s var(--ease),visibility .35s;
+}
+.calc-modal.open{opacity:1;visibility:visible}
+.calc-modal-panel{
+  background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  width:min(760px,100%);max-height:86dvh;overflow-y:auto;
+  padding:clamp(24px,3.4vw,44px);
+  display:grid;gap:clamp(20px,2.6vh,30px);
+  transform:translateY(14px);transition:transform .4s var(--ease);
+}
+.calc-modal.open .calc-modal-panel{transform:none}
+.calc-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.calc-modal-head p{color:var(--ink-mid);font-size:.92rem;line-height:1.55;margin-top:8px;max-width:52ch}
+.calc-modal-close{
+  font:inherit;font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  background:none;border:1px solid var(--line);border-radius:100px;
+  padding:.6em 1.15em;cursor:pointer;color:var(--ink-mid);flex:0 0 auto;
+  transition:color .25s,border-color .25s;
+}
+.calc-modal-close:hover{color:var(--accent);border-color:var(--accent)}
+
+.calc-section{display:grid;gap:9px;border-top:1px solid var(--line);padding-top:clamp(16px,2vh,24px)}
+.calc-section h3{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:400;
+  color:var(--accent);
+}
+.calc-section p{font-size:.92rem;line-height:1.6;color:var(--ink-mid);max-width:60ch}
+.calc-formula{
+  font-size:11.5px;line-height:1.6;color:var(--ink);
+  background:var(--paper-2);border:1px solid var(--line);border-radius:8px;
+  padding:11px 14px;
+}
+.calc-costs{display:grid;gap:5px;font-size:11.5px;color:var(--ink-mid)}
+
+/* ===========================================================================
+   FAQ
+   =========================================================================== */
+
+.faq{padding-block:clamp(70px,11vh,150px);background:var(--paper);position:relative;z-index:2}
+.faq-head{display:grid;gap:14px;margin-bottom:clamp(26px,4vh,44px)}
+.faq-head .h2{max-width:16ch}
+
+.faq-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:clamp(24px,3.4vh,40px)}
+.faq-tab{
+  font:inherit;font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  padding:.72em 1.2em;border-radius:100px;cursor:pointer;
+  background:transparent;color:var(--ink-soft);border:1px solid var(--line);
+  transition:color .25s,border-color .25s,background .25s;
+}
+.faq-tab:hover{color:var(--ink)}
+.faq-tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+
+.faq-list{border-top:1px solid var(--line);max-width:860px}
+.faq-list details{border-bottom:1px solid var(--line)}
+.faq-list summary{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+  padding:20px 0;cursor:pointer;list-style:none;
+  font-size:clamp(1rem,1.25vw,1.15rem);font-weight:500;letter-spacing:-.02em;
+  transition:color .25s;
+}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary:hover{color:var(--accent)}
+.faq-list summary .ic{
+  width:12px;height:12px;position:relative;flex:0 0 auto;margin-top:.42em;
+  transition:transform .4s var(--ease);
+}
+.faq-list summary .ic::before,.faq-list summary .ic::after{
+  content:'';position:absolute;inset:50% 0 auto;height:1px;background:currentColor;
+}
+.faq-list summary .ic::after{transform:rotate(90deg);transition:opacity .3s}
+.faq-list details[open] summary .ic{transform:rotate(180deg)}
+.faq-list details[open] summary .ic::after{opacity:0}
+.faq-list p{
+  color:var(--ink-mid);font-size:.96rem;line-height:1.65;
+  padding-bottom:22px;max-width:68ch;
+}
+
+/* ===========================================================================
+   Next step — the three ways in
+   =========================================================================== */
+
+.next{padding-block:0;background:var(--paper);position:relative;z-index:2}
+.next-box{
+  display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(24px,4vw,64px);
+  align-items:center;
+  border:1px solid var(--line);border-radius:14px;background:var(--paper-2);
+  padding:clamp(26px,3.4vw,48px);
+  max-width:calc(var(--wrap) - var(--pad) * 2);margin-inline:auto;
+}
+.next-body{font-size:clamp(1rem,1.35vw,1.24rem);line-height:1.55;letter-spacing:-.01em}
+.next-actions{display:grid;gap:10px;justify-items:stretch}
+.next-actions .btn{justify-content:center;text-align:center}
+
+@media (max-width:860px){
+  .next-box{grid-template-columns:1fr;align-items:start}
+}

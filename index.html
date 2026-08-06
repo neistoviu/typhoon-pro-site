@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Typhoon PRO — electric convection coffee roasters</title>
+<meta name="description" content="Typhoon 2.5 PRO, 5 PRO and 10 PRO. Fully electric, 100% convection coffee roasters — six to seven batches an hour with no cooldown, and software that repeats the profile.">
+<meta name="theme-color" content="#f1f0ec">
+
+<link rel="icon" href="img/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+} }
+</script>
+</head>
+
+<body>
+
+<!-- The machines live here. One canvas, fixed, for the whole page. -->
+<canvas id="stage" aria-hidden="true"></canvas>
+
+<!-- Boot screen: covers the page until all three models are decoded -->
+<div id="boot">
+  <div class="boot-inner">
+    <img src="img/logo.svg" alt="" class="boot-logo">
+    <div class="boot-bar"><i></i></div>
+    <p class="boot-pct mono"><span>0</span>%</p>
+  </div>
+</div>
+
+
+<header class="nav" id="nav">
+  <a class="nav-brand" href="#top">
+    <img src="img/logo.svg" alt="Typhoon Roasters">
+    <span class="mono">PRO&nbsp;series</span>
+  </a>
+  <nav class="nav-links mono">
+    <a href="#finder">Find yours</a>
+    <a href="#lineup">Machines</a>
+    <a href="#software">Software</a>
+    <a href="#compare">vs. drum</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <a class="btn btn-sm" href="#contact">Request a quote</a>
+</header>
+
+
+<main id="top">
+
+  <!-- ══ HERO ═══════════════════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <!-- Art-directed, not just resized: the wide frame leaves the left third
+         empty for the headline, which a phone has no room for. The mobile
+         file is its own crop around the machines. -->
+    <picture class="hero-media">
+      <source media="(max-width:760px)" srcset="img/hero/lineup-mobile.webp"
+              width="1200" height="1500">
+      <img src="img/hero/lineup-desktop.webp"
+           alt="Typhoon 2.5 PRO, 5 PRO and 10 PRO roasters side by side"
+           width="2560" height="1440" fetchpriority="high" decoding="async">
+    </picture>
+
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow mono" data-rise></p>
+        <h1 class="hero-title" data-lines></h1>
+        <p class="hero-sub" data-rise></p>
+        <div class="hero-actions" data-rise>
+          <a class="btn" href="#contact"></a>
+          <a class="btn btn-ghost" href="#lineup"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-foot wrap">
+      <span class="mono scroll-hint"><i></i></span>
+      <ul class="hero-badges mono">
+        <li>100% convection</li>
+        <li>No gas line</li>
+        <li>≈0.3 kWh / kg</li>
+        <li>24-month warranty</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <!-- ══ MODEL FINDER ═══════════════════════════════════════════════ -->
+  <section class="quiz" id="finder">
+    <div class="wrap">
+      <div class="quiz-head">
+        <p class="eyebrow mono" data-rise></p>
+        <h2 class="h2" data-rise></h2>
+        <p class="lede" data-rise></p>
+      </div>
+      <div class="quiz-body"></div>
+      <div class="quiz-result" hidden></div>
+    </div>
+  </section>
+
+
+  <!-- ══ MODEL CHAPTERS (built by ui.js from content.js) ════════════ -->
+  <div id="lineup"></div>
+
+
+  <!-- ══ SOFTWARE ═══════════════════════════════════════════════════ -->
+  <section class="software" id="software" data-dark>
+    <div class="wrap">
+
+      <div class="sw-head">
+        <p class="eyebrow mono" data-rise></p>
+        <h2 class="h2" data-rise></h2>
+        <p class="lede" data-rise></p>
+      </div>
+
+      <!-- the auto-repeat explainer -->
+      <div class="repeat" data-rise>
+        <div class="repeat-head">
+          <h3 class="h3">Roast it once. The machine keeps it.</h3>
+          <p>Coffee goes in, the operator presses start, and the reference roast is reproduced. Two ways to define what “the same” means:</p>
+        </div>
+
+        <div class="repeat-tabs mono" role="tablist"></div>
+
+        <div class="repeat-stage">
+          <!-- the chart keeps a readable minimum width and scrolls inside
+               this box rather than shrinking to an illegible strip -->
+          <div class="repeat-chart">
+            <svg class="repeat-svg" viewBox="0 0 900 470" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+          </div>
+          <div class="repeat-side">
+            <p class="repeat-desc"></p>
+            <dl class="repeat-readout mono">
+              <div><dt>Batch</dt><dd data-r="batch">1</dd></div>
+              <div><dt>Stage</dt><dd data-r="stage">Prepare</dd></div>
+              <div><dt>Bean</dt><dd data-r="bean">—</dd></div>
+              <div><dt>DTR</dt><dd data-r="dtr">—</dd></div>
+              <div><dt>Deviation</dt><dd data-r="dev">—</dd></div>
+            </dl>
+            <p class="repeat-note mono">Reference profile shown as the ghost line. The machine holds it batch after batch — there is no drum mass to cool down between them.</p>
+          </div>
+        </div>
+
+        <div class="repeat-stages mono"></div>
+      </div>
+
+      <ul class="sw-features"></ul>
+
+    </div>
+  </section>
+
+
+  <!-- ══ COMPARISON ═════════════════════════════════════════════════ -->
+  <section class="compare" id="compare">
+    <div class="wrap">
+      <h2 class="h2" data-rise></h2>
+      <table class="cmp"><thead></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+
+  <!-- ══ CLIENTS ════════════════════════════════════════════════════ -->
+  <section class="clients" id="clients">
+    <div class="wrap">
+      <div class="clients-head">
+        <p class="eyebrow mono" data-rise></p>
+        <h2 class="h2" data-rise></h2>
+        <p class="lede" data-rise></p>
+      </div>
+      <ul class="client-grid"></ul>
+      <a class="btn btn-ghost clients-cta" data-rise href="#"></a>
+    </div>
+  </section>
+
+
+  <!-- ══ SAVINGS CALCULATOR ═════════════════════════════════════════
+       Markup and arithmetic are the existing standalone calculator from
+       `typhoon-roi-calculator/`; only the class names and the styling are
+       this site's. Logic lives in js/calculator.js. ═══════════════════ -->
+  <section class="calc" id="calc">
+    <div class="wrap">
+
+      <div class="calc-top">
+        <p class="eyebrow mono" data-rise></p>
+        <h2 class="h2" data-rise>How does Typhoon save you
+          <span id="headlineSavings">€0/month</span>?</h2>
+        <p class="lede" data-rise>Choose a machine and your monthly output. The figure
+          compares it against a drum setup roasting the same volume — labour, energy
+          and the coffee you stop throwing away.</p>
+        <div class="calc-currency mono" data-rise aria-label="Currency and unit">
+          <button id="eurBtn" class="calc-cur-btn active" type="button">EUR · kg</button>
+          <button id="usdBtn" class="calc-cur-btn" type="button">USD · lb</button>
+        </div>
+      </div>
+
+      <div class="calc-grid" data-rise>
+        <div class="calc-inputs">
+          <h3 class="calc-h3">Your Typhoon setup</h3>
+
+          <div class="calc-field">
+            <div class="calc-field-head">
+              <label for="batchRange">Machine</label>
+              <output id="batchValue" for="batchRange">10 kg</output>
+            </div>
+            <input id="batchRange" class="calc-range" type="range"
+                   min="0" max="4" step="1" value="2">
+            <div class="calc-ticks mono" id="batchTicks" aria-hidden="true"></div>
+          </div>
+
+          <div class="calc-field">
+            <div class="calc-field-head">
+              <label for="monthlyRange">Roasted per month,
+                <span id="monthlyUnitLabel">kg</span></label>
+              <output id="monthlyValue" for="monthlyRange">6,500 kg</output>
+            </div>
+            <input id="monthlyRange" class="calc-range" type="range"
+                   min="500" max="12000" step="250" value="6500">
+            <div class="calc-scale mono">
+              <span id="monthlyMin">500 kg</span>
+              <span id="monthlyMax">12,000 kg</span>
+            </div>
+          </div>
+
+          <button class="calc-link mono" id="calcOpen" type="button">How this is calculated →</button>
+        </div>
+
+        <div class="calc-results">
+          <div class="calc-total">
+            <div class="calc-total-label mono">Monthly saving</div>
+            <div class="calc-total-value" id="monthlySavings">€0</div>
+            <div class="calc-total-vs mono">vs. a drum roaster</div>
+          </div>
+
+          <div class="calc-breakdown">
+            <div class="calc-row">
+              <div class="calc-row-label">Labour</div>
+              <div class="calc-bar"><i id="barLabor"></i></div>
+              <div class="calc-row-value mono" id="valLabor">€0</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-row-label">Energy</div>
+              <div class="calc-bar"><i id="barEnergy"></i></div>
+              <div class="calc-row-value mono" id="valEnergy">€0</div>
+            </div>
+            <div class="calc-row">
+              <div class="calc-row-label">Defects</div>
+              <div class="calc-bar"><i id="barDefect"></i></div>
+              <div class="calc-row-value mono" id="valDefect">€0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- the method, on request -->
+    <div class="calc-modal" id="calcModal" aria-hidden="true">
+      <div class="calc-modal-panel" role="dialog" aria-modal="true" aria-labelledby="calcTitle">
+        <div class="calc-modal-head">
+          <div>
+            <h2 class="h3" id="calcTitle">How this is calculated</h2>
+            <p id="calcIntro"></p>
+          </div>
+          <button class="calc-modal-close mono" id="calcClose" type="button">Close</button>
+        </div>
+
+        <div class="calc-section">
+          <h3>1 · Monthly volume</h3>
+          <p>Your target output, capped at what one Typhoon realistically does in a single shift.</p>
+          <div class="calc-formula mono" id="volumeFormula"></div>
+        </div>
+        <div class="calc-section">
+          <h3>2 · The drum setup that matches it</h3>
+          <p>A same-size drum reaches the same monthly output only by running more hours. Holding normal weekly hours, it has to be roughly twice the size, or more than one machine.</p>
+          <div class="calc-formula mono" id="drumSetupFormula"></div>
+        </div>
+        <div class="calc-section">
+          <h3>3 · Labour</h3>
+          <p>Drum roasting hours minus Typhoon roasting hours, at an hourly rate.</p>
+          <div class="calc-formula mono" id="laborFormula"></div>
+        </div>
+        <div class="calc-section">
+          <h3>4 · Energy</h3>
+          <p>Typhoon uses 0.30 kWh/kg against a 0.75 kWh/kg drum baseline. The difference, at your electricity price.</p>
+          <div class="calc-formula mono" id="energyFormula"></div>
+        </div>
+        <div class="calc-section">
+          <h3>5 · Defects</h3>
+          <p>1% defects on a Typhoon against 6% on a drum. Those five points, at green coffee cost.</p>
+          <div class="calc-formula mono" id="defectFormula"></div>
+        </div>
+        <div class="calc-section">
+          <h3>Assumed costs</h3>
+          <p>Kept out of the interface to keep it simple, and deliberately conservative.</p>
+          <ul class="calc-costs mono" id="defaultCostList"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ SERVICE ════════════════════════════════════════════════════ -->
+  <section class="service" id="service">
+    <div class="wrap">
+      <h2 class="h2" data-rise>Bought once, run for years.</h2>
+      <ul class="svc-list"></ul>
+    </div>
+  </section>
+
+
+  <!-- ══ FAQ ════════════════════════════════════════════════════════ -->
+  <section class="faq" id="faq">
+    <div class="wrap">
+      <div class="faq-head">
+        <p class="eyebrow mono" data-rise></p>
+        <h2 class="h2" data-rise></h2>
+      </div>
+      <div class="faq-tabs mono" role="tablist" data-rise></div>
+      <div class="faq-list" data-rise></div>
+    </div>
+  </section>
+
+
+  <!-- ══ NEXT STEP ══════════════════════════════════════════════════ -->
+  <section class="next">
+    <div class="wrap next-box" data-rise>
+      <p class="next-body"></p>
+      <div class="next-actions"></div>
+    </div>
+  </section>
+
+
+  <!-- ══ CONTACT ════════════════════════════════════════════════════ -->
+  <section class="cta" id="contact">
+    <div class="wrap">
+      <h2 class="cta-title" data-rise></h2>
+      <p class="lede" data-rise></p>
+      <div class="cta-actions" data-rise>
+        <a class="btn btn-lg" href="#" data-mail></a>
+        <a class="btn btn-ghost btn-lg" href="#" data-mail-demo></a>
+      </div>
+      <ul class="cta-meta mono" data-rise></ul>
+    </div>
+  </section>
+
+</main>
+
+
+<footer class="foot">
+  <div class="wrap foot-grid mono">
+    <span>© <span id="year"></span> Typhoon Roasters</span>
+    <a href="https://typhoon.coffee">Full range at typhoon.coffee →</a>
+  </div>
+</footer>
+
+
+<script type="module" src="js/ui.js"></script>
+<script type="module" src="js/calculator.js"></script>
+<script type="module" src="js/scene.js"></script>
+</body>
+</html>
