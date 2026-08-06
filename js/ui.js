@@ -3,8 +3,8 @@
    scroll reveals, the nav, the spec disclosures and the auto-repeat animation.
 --------------------------------------------------------------------------- */
 
-import { MODELS, HERO, QUIZ, PRESETS, SOFTWARE, COMPARE, CLIENTS, CALC, FAQ, SERVICE,
-         NEXT, CTA } from './content.js';
+import { MODELS, HERO, QUIZ, PRESETS, SOFTWARE, COMPARE, CLIENTS, TRY, CALC, FAQ,
+         SERVICE, NEXT, CTA } from './content.js';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -252,6 +252,52 @@ $$('.presets').forEach(box => {
           <span>${c.country}</span>
           ${c.tags.map(t => `<b>${t}</b>`).join('')}
         </p>
+      </div>
+    </li>`).join('');
+})();
+
+/* ═══════════════════════════════════════════════════════ SOFTWARE ═══════ */
+
+(function software() {
+  const s = $('.software');
+  $('.eyebrow', s).textContent = SOFTWARE.eyebrow;
+  $('.h2', s).textContent = SOFTWARE.title;
+  $('.lede', s).textContent = SOFTWARE.sub;
+
+  $('.sw-features').innerHTML = SOFTWARE.features.map(f => `
+    <li data-rise><h4>${f.t}</h4><p>${f.d}</p></li>`).join('');
+
+  $('.repeat-tabs').innerHTML = SOFTWARE.modes.map((m, i) => `
+    <button role="tab" data-mode="${m.key}" aria-selected="${i === 0}">${m.name}</button>`).join('');
+})();
+
+/* ══════════════════════════════════════════════════════ COMPARISON ══════ */
+
+(function compare() {
+  $('.compare .h2').textContent = COMPARE.title;
+  $('.cmp thead').innerHTML =
+    `<tr><th></th><th>${COMPARE.headA}</th><th>${COMPARE.headB}</th></tr>`;
+  $('.cmp tbody').innerHTML = COMPARE.rows
+    .map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+})();
+
+/* ════════════════════════════════════════════════════════ TRY IT ═══════ */
+
+(function tryIt() {
+  const s = $('.try');
+  $('.eyebrow', s).textContent = TRY.eyebrow;
+  $('.h2', s).textContent = TRY.title;
+
+  $('.try-grid').innerHTML = TRY.items.map(t => `
+    <li class="try-card" data-rise>
+      <div class="try-shot">
+        <img src="img/try/${t.key}.webp" alt="${t.name}"
+             width="900" height="675" loading="lazy" decoding="async">
+      </div>
+      <div class="try-body">
+        <h3>${t.name}</h3>
+        <p>${t.body}</p>
+        <a class="btn btn-ghost" href="mailto:${CTA.email}?subject=${encodeURIComponent(t.subject)}">${t.cta}</a>
       </div>
     </li>`).join('');
 })();

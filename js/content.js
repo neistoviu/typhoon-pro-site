@@ -366,21 +366,54 @@ export const CALC = {
 /* --- Comparison against a drum ------------------------------------------- */
 
 export const COMPARE = {
-  title: 'Against a drum of the same class',
+  title: 'Typhoon roasts 2× faster than a drum, and holds it.',
   rows: [
-    ['Roast time',        'up to 14 min',       'from 7 min'],
-    ['Batches per hour',  '3.5',                '6 – 7'],
-    ['Heat transfer',     '80% conduction',     '100% convection'],
-    ['Between batches',   'cooldown protocol',  'none'],
-    ['Roasting defects',  'tipping, scorching', 'no contact surface'],
-    ['Burner service',    '5 – 10 min protocol','no burner'],
-    ['Energy',            'gas + electric',     'electric only'],
+    ['Roast time',            'up to 14 min',              'up to 7 min'],
+    ['Batches',               '3.5 / hour',                '6 – 7 / hour'],
+    ['Heating method',        '80% hot metal (conduction)','100% hot air (convection)'],
+    ['Roasting defects',      'inevitable',                'no contact surface'],
+    ['Between-batch protocol','5 – 10 min',                'not needed'],
+    ['Noise level',           'loud',                      '70.5 dBA — quiet'],
+    ['Energy source',         'gas',                       'electric only'],
+    ['Payback',               '12 months at 50% load',     '3 months at 50% load'],
   ],
-  headA: 'Drum',
+  headA: 'Drum roaster',
   headB: 'Typhoon PRO',
 };
 
-/* --- Service ------------------------------------------------------------- */
+/* --- Try it before you buy ----------------------------------------------
+   The three low-commitment steps from typhoon.coffee. On the main site each
+   is a full-width band with a large photograph; here they are one row of
+   three, because they are three versions of the same offer and reading them
+   side by side is the point. */
+
+export const TRY = {
+  eyebrow: 'Before you commit',
+  title: 'Taste it, watch it, or come and use it.',
+  items: [
+    {
+      key: 'samples',
+      name: 'Coffee roasted on a Typhoon',
+      body: 'A sample set — espresso, filter and a special lot — roasted fresh and shipped to you free.',
+      cta: 'Order samples',
+      subject: 'Typhoon PRO — coffee samples',
+    },
+    {
+      key: 'online',
+      name: 'An online roasting session',
+      body: 'Thirty minutes on a call: we roast live, walk you through the machine, and send samples afterwards.',
+      cta: 'Book an online demo',
+      subject: 'Typhoon PRO — online roasting session',
+    },
+    {
+      key: 'showroom',
+      name: 'Our Prague showroom',
+      body: 'Roast on the machine yourself, ask everything, and stay for a cupping in our coffee shop.',
+      cta: 'Book a visit',
+      subject: 'Typhoon PRO — showroom visit',
+    },
+  ],
+};
 
 export const SERVICE = [
   { t: '24 months',        d: 'Warranty, with a spare-parts kit — heaters, sensors, glass, gaskets, actuators — in the crate.' },
