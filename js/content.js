@@ -195,7 +195,9 @@ export const FRONT_DEG = 296;
 
 export const HERO = {
   eyebrow: 'The PRO series',
-  title: ['The coffee roaster for', 'defect-free roasting,', '2× faster than drums.'],
+  /* Four short lines on purpose: the machines start about a third of the
+     way across the hero image, and anything wider runs into them. */
+  title: ['The coffee roaster', 'for defect-free', 'roasting, 2× faster', 'than drum roasters.'],
   sub: 'Three fully electric, 100% convection roasters. Six to seven batches an hour with no cooldown between them — and software that repeats the profile so the result stops depending on who is on shift.',
   cta: 'Talk to us',
   ctaSecondary: 'See the machines',

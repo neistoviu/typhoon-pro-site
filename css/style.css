@@ -177,7 +177,7 @@ main,.nav,.foot{position:relative;z-index:1}
 .hero .eyebrow{color:var(--accent)}
 
 .hero-media{position:absolute;inset:0;z-index:-1;display:block}
-.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center}
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:18% center}
 /* The machines sit centre-right on a pale sweep, so the copy takes the empty
    left third and the scrim only lifts that side towards the paper the rest of
    the page is made of. */
@@ -189,21 +189,22 @@ main,.nav,.foot{position:relative;z-index:1}
     linear-gradient(to top,rgba(244,243,240,.55) 0%,rgba(244,243,240,0) 26%);
 }
 
-.hero-grid{display:grid;flex:1;align-items:center}
+/* The copy sits high in the frame rather than centred: centred, a four-line
+   headline drifts down into the machines. */
+.hero-grid{display:grid;flex:1;align-items:start}
 /* No max-width here: the headline sets its own line breaks and must not
    be re-wrapped by a measure meant for the paragraph under it. */
 .hero-copy{
-  display:grid;gap:clamp(12px,1.8vh,22px);align-content:center;
+  display:grid;gap:clamp(12px,1.7vh,20px);align-content:start;
   grid-column:1;                       /* the empty side of the frame */
 }
 @media (min-width:1001px){
-  .hero-grid{grid-template-columns:minmax(0,1.02fr) minmax(0,1fr)}
+  .hero-grid{grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr)}
 }
 
 .hero-title{
-  font-size:clamp(2.4rem,4.6vw,4.6rem);font-weight:600;
-  letter-spacing:-.045em;line-height:.95;
-  text-wrap:balance;
+  font-size:clamp(2.1rem,3.5vw,3.6rem);font-weight:600;
+  letter-spacing:-.045em;line-height:.98;
 }
 .hero-title .ln{display:block;overflow:hidden;white-space:nowrap}
 @media (max-width:640px){.hero-title .ln{white-space:normal}}
@@ -215,6 +216,7 @@ main,.nav,.foot{position:relative;z-index:1}
 .hero.ready .hero-title .ln > i{transform:translateY(0)}
 .hero-title .ln:nth-child(2) > i{transition-delay:.09s}
 .hero-title .ln:nth-child(3) > i{transition-delay:.18s}
+.hero-title .ln:nth-child(4) > i{transition-delay:.27s}
 
 .hero-sub{
   font-size:clamp(.98rem,1.1vw,1.14rem);line-height:1.55;

@@ -654,22 +654,27 @@ addEventListener('load', sweep);
     applyMode(SOFTWARE.modes.find(m => m.key === b.dataset.mode))));
   applyMode(mode);
 
-  /* ---- stage bar -------------------------------------------------------- */
-  const STAGES = [
-    { name: 'Prepare',   until: 0.6 },
-    { name: 'Ready',     until: 1.1 },
-    { name: 'Loading',   until: 1.7 },
-    { name: 'Roasting',  until: 8.4 },
-    { name: 'Unloading', until: 9.1 },
-    { name: 'Cooling',   until: 10.5 },
-  ];
-  const CYCLE = STAGES.at(-1).until;
-  const ROAST_FROM = 1.7, ROAST_TO = 8.4;
+  /* ---- stage bar --------------------------------------------------------
+     The machine's cycle is shown for context, but the animation stays on
+     Roasting and loops there. Watching Prepare, Ready, Loading, Unloading
+     and Cooling tick past was mostly dead time — the roast is the part
+     worth looking at, and the batch counter still carries the claim that
+     nothing has to cool down in between. */
+  const STAGES = ['Prepare', 'Ready', 'Loading', 'Roasting', 'Unloading', 'Cooling'];
+  const ROASTING = 3;
 
-  stageBar.innerHTML = STAGES.map(s => `<span>${s.name}</span>`).join('');
+  stageBar.innerHTML = STAGES.map(n => `<span>${n}</span>`).join('');
   const stageEls = $$('span', stageBar);
+  stageEls.forEach((n, i) => {
+    n.classList.toggle('on', i === ROASTING);
+    n.classList.toggle('done', i < ROASTING);
+  });
 
   /* ---- the loop --------------------------------------------------------- */
+  const DRAW = 7.2;        // seconds to draw one roast
+  const HOLD = 1.1;        // finished roast on screen before the next batch
+  const CYCLE = DRAW + HOLD;
+
   let batch = 1, t0 = 0, raf = 0, running = false;
 
   const mmss = min => {
@@ -683,17 +688,16 @@ addEventListener('load', sweep);
     if (!t0) t0 = now;
     const e = ((now - t0) / 1000) % CYCLE;
 
-    if (e < 0.05 && liveLen && live.style.strokeDashoffset === '0px') newBatch();
+    if (e < DRAW) {
+      /* a fresh batch the moment the previous one has finished being held */
+      if (live.dataset.done === '1') {
+        live.dataset.done = '';
+        batch += 1;
+        out.batch.textContent = batch;
+        newBatch();
+      }
 
-    let si = STAGES.findIndex(s => e < s.until);
-    if (si < 0) si = STAGES.length - 1;
-    stageEls.forEach((n, i) => {
-      n.classList.toggle('on', i === si);
-      n.classList.toggle('done', i < si);
-    });
-
-    if (e >= ROAST_FROM && e <= ROAST_TO) {
-      const p = (e - ROAST_FROM) / (ROAST_TO - ROAST_FROM);
+      const p = e / DRAW;
       const rt = p * DROP_T;
       live.style.strokeDashoffset = `${liveLen * (1 - p)}px`;
 
@@ -707,24 +711,15 @@ addEventListener('load', sweep);
       out.dtr.textContent   = rt > FC_T ? dtrAt(rt) : '—';
       out.dev.textContent   = `${Math.abs(wobble(rt, 1.1)).toFixed(1)} °C`;
     } else {
+      /* held: the completed roast, sitting on the reference line */
+      live.dataset.done = '1';
+      live.style.strokeDashoffset = '0px';
       head.setAttribute('opacity', 0);
-      dot.setAttribute('opacity', 0);
-      out.stage.textContent = STAGES[si].name;
-      if (e < ROAST_FROM) {
-        live.style.strokeDashoffset = `${liveLen}px`;
-        out.bean.textContent = '—';
-        out.dtr.textContent  = '—';
-        out.dev.textContent  = '—';
-      } else {
-        live.style.strokeDashoffset = '0px';
-        out.bean.textContent = `${beanAt(DROP_T).toFixed(1)} °C`;
-        out.dtr.textContent  = dtrAt(DROP_T);
-      }
-      if (e > CYCLE - 0.1 && out.batch.dataset.n !== String(batch + 1)) {
-        batch += 1;
-        out.batch.dataset.n = String(batch);
-        out.batch.textContent = batch;
-      }
+      dot.setAttribute('opacity', 1);
+      dot.setAttribute('cx', x(DROP_T)); dot.setAttribute('cy', y(beanAt(DROP_T)));
+      out.stage.textContent = `Dropped ${mmss(DROP_T)}`;
+      out.bean.textContent = `${beanAt(DROP_T).toFixed(1)} °C`;
+      out.dtr.textContent  = dtrAt(DROP_T);
     }
     raf = requestAnimationFrame(frame);
   }
@@ -742,8 +737,7 @@ addEventListener('load', sweep);
   /* Reduced motion: show the finished roast, no loop. */
   if (reduced) {
     live.style.strokeDashoffset = '0px';
-    stageEls[3].classList.add('on');
-    out.stage.textContent = `Roasting ${mmss(DROP_T)}`;
+    out.stage.textContent = `Dropped ${mmss(DROP_T)}`;
     out.bean.textContent = `${beanAt(DROP_T).toFixed(1)} °C`;
     out.dtr.textContent  = dtrAt(DROP_T);
     out.dev.textContent  = '0.4 °C';
