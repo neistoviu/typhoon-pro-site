@@ -297,7 +297,7 @@ export const SOFTWARE = {
   features: [
     { t: 'Roast library',        d: 'Profiles sorted by name, origin, process and weight. Turn any recorded roast into a master profile in two taps.' },
     { t: 'Event-based control',  d: 'Set checkpoints and automate power, airflow and temperature changes at exact moments in the roast.' },
-    { t: 'Cropster & Artisan',   d: 'Both integrate directly. Roast data lands where your QC team already works.' },
+    { t: 'Online profile library', d: 'Profiles live online as well as on the machine, so a curve can be pulled onto any Typhoon instead of being rebuilt from scratch.' },
     { t: 'Guardrails',           d: 'Airflow, heat and recirculation limits per profile — with manual override whenever the roaster wants it.' },
     { t: 'Remote diagnostics',   d: 'We can see the machine, read its logs and push updates without an engineer visit.' },
     { t: 'Automated protocols',  d: 'Preparation, between-batch settings, loading and unloading run themselves.' },

@@ -560,15 +560,30 @@ main,.nav,.foot{position:relative;z-index:1}
   text-transform:uppercase;color:var(--ink-soft);font-weight:400;
   border-bottom-color:var(--ink);
 }
-.cmp thead th:last-child{color:var(--accent)}
 .cmp td:first-child{color:var(--ink-soft);width:32%}
-.cmp td:nth-child(2){color:var(--ink-mid);text-decoration:line-through;text-decoration-color:var(--line)}
+/* No strike-through on the drum column: it is a fair comparison, not a
+   crossed-out competitor. The contrast is carried by the filled column. */
+.cmp td:nth-child(2){color:var(--ink-mid)}
+
+/* The Typhoon column is one solid block of brand blue running the height of
+   the table — the whole point of the section in a single shape. */
+.cmp thead th:last-child,
+.cmp td:last-child{
+  background:var(--accent);color:#fff;
+  padding-left:24px;padding-right:24px;
+  border-bottom-color:rgba(255,255,255,.18);
+}
+.cmp thead th:last-child{color:rgba(255,255,255,.72);border-radius:10px 10px 0 0;padding-top:14px}
+.cmp tbody tr:last-child td:last-child{border-radius:0 0 10px 10px;border-bottom-color:transparent}
 .cmp td:last-child{font-weight:500}
+
 .cmp tbody tr{transition:background .25s}
-.cmp tbody tr:hover{background:var(--paper-2)}
+.cmp tbody tr:hover > td:not(:last-child){background:var(--paper-2)}
+
 @media (max-width:620px){
   .cmp th,.cmp td{padding:12px 8px;font-size:.86rem}
-  .cmp td:first-child{width:36%}
+  .cmp thead th:last-child,.cmp td:last-child{padding-left:12px;padding-right:12px}
+  .cmp td:first-child{width:34%}
 }
 
 /* ===========================================================================
