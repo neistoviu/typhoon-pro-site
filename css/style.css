@@ -17,6 +17,10 @@
      a lifted version rather than a different colour. */
   --accent:#1220d0;
   --accent-lit:#5f9dff;
+  /* The call-to-action gradient. Two blues rather than one flat fill: a
+     single solid at this size reads as a plain form button. */
+  --cta:linear-gradient(135deg,#1220d0 0%,#2f4bff 100%);
+  --cta-hot:linear-gradient(135deg,#1b2ce8 0%,#4a6bff 100%);
 
   --dark:#0f1a20;
   --dark-2:#16252d;
@@ -74,21 +78,40 @@ ul,ol{list-style:none}
 
 /* --- buttons ------------------------------------------------------------ */
 
+/* Primary: the blue gradient, so a call to action never reads as a form
+   control. Secondary: the same blue as an outline that fills on hover — the
+   two are the same button at two volumes. */
 .btn{
-  --bg:var(--ink);--fg:var(--paper);
-  display:inline-flex;align-items:center;gap:.6em;
-  background:var(--bg);color:var(--fg);
-  padding:.92em 1.6em;border-radius:100px;
-  font-size:14px;font-weight:500;letter-spacing:-.01em;
-  border:1px solid var(--bg);
-  transition:transform .35s var(--ease),background .3s,color .3s,border-color .3s;
+  display:inline-flex;align-items:center;justify-content:center;gap:.6em;
+  background:var(--cta);color:#fff;
+  padding:.92em 1.7em;border-radius:100px;
+  font-size:14px;font-weight:600;letter-spacing:-.005em;
+  border:1.5px solid transparent;
+  box-shadow:0 1px 2px rgba(18,32,208,.18);
+  transition:transform .3s var(--ease),box-shadow .3s var(--ease),
+             background .3s,color .3s,border-color .3s;
   will-change:transform;
 }
-.btn:hover{transform:translateY(-2px);--bg:var(--accent)}
-.btn-ghost{--bg:transparent;--fg:var(--ink);border-color:var(--line)}
-.btn-ghost:hover{--bg:transparent;--fg:var(--accent);border-color:var(--accent)}
-.btn-sm{padding:.62em 1.15em;font-size:13px;white-space:nowrap}
-.btn-lg{padding:1.05em 2em;font-size:15px}
+.btn:hover{
+  background:var(--cta-hot);
+  transform:translateY(-2px);
+  box-shadow:0 8px 22px -6px rgba(18,32,208,.45);
+}
+.btn:active{transform:translateY(0)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.btn-ghost{
+  background:transparent;color:var(--accent);
+  border-color:color-mix(in srgb,var(--accent) 42%,transparent);
+  box-shadow:none;
+}
+.btn-ghost:hover{
+  background:var(--cta);color:#fff;border-color:transparent;
+  box-shadow:0 8px 22px -6px rgba(18,32,208,.42);
+}
+
+.btn-sm{padding:.66em 1.3em;font-size:13px;white-space:nowrap}
+.btn-lg{padding:1.05em 2.1em;font-size:15px}
 
 /* ===========================================================================
    Boot screen
@@ -142,7 +165,8 @@ main,.nav,.foot{position:relative;z-index:1}
   background:color-mix(in srgb,var(--dark) 80%,transparent);
   border-bottom-color:var(--dark-line);
 }
-.nav.on-dark .btn{--bg:var(--dark-ink);--fg:var(--dark)}
+.nav.on-dark .btn{background:#fff;color:var(--dark);box-shadow:none}
+.nav.on-dark .btn:hover{background:var(--cta-hot);color:#fff}
 .nav.on-dark .nav-brand img{filter:invert(1)}
 
 .nav-brand{display:flex;align-items:center;gap:14px;flex:0 0 auto}
@@ -560,7 +584,7 @@ main,.nav,.foot{position:relative;z-index:1}
   text-transform:uppercase;color:var(--ink-soft);font-weight:400;
   border-bottom-color:var(--ink);
 }
-.cmp td:first-child{color:var(--ink-soft);width:32%}
+.cmp td:first-child{color:var(--ink);font-weight:500;width:32%}
 /* No strike-through on the drum column: it is a fair comparison, not a
    crossed-out competitor. The contrast is carried by the filled column. */
 .cmp td:nth-child(2){color:var(--ink-mid)}
