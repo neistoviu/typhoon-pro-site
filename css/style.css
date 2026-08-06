@@ -284,14 +284,33 @@ main,.nav,.foot{position:relative;z-index:1}
   background:var(--accent);border-color:var(--accent);color:#fff;
 }
 
+/* Recommendation on the left, what to do about it on the right. A result
+   card with no way to act on it was the thing that read as unfinished. */
 .quiz-result{
   margin-top:clamp(30px,5vh,56px);
   border:1px solid var(--line);border-radius:14px;
   padding:clamp(24px,3.4vw,44px);
-  display:grid;gap:14px;justify-items:start;
+  display:grid;grid-template-columns:1.45fr 1fr;
+  gap:clamp(24px,4vw,60px);align-items:start;
   background:var(--paper-2);
   animation:quizIn .5s var(--ease) both;
 }
+.quiz-main{display:grid;gap:14px;justify-items:start}
+.quiz-side{display:grid;gap:10px;align-content:start}
+.quiz-side .btn{justify-content:center;text-align:center}
+.quiz-note{
+  font-size:11.5px;line-height:1.65;color:var(--ink-soft);margin-top:6px;
+}
+.quiz-again{
+  justify-self:start;font:inherit;font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  background:none;border:0;padding:0;cursor:pointer;color:var(--ink-soft);
+  border-bottom:1px solid var(--line);padding-bottom:3px;margin-top:4px;
+  transition:color .25s,border-color .25s;
+}
+.quiz-again:hover{color:var(--accent);border-color:var(--accent)}
+
+@media (max-width:900px){.quiz-result{grid-template-columns:1fr}}
 @keyframes quizIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .quiz-result-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
 .quiz-result-name{font-size:clamp(1.9rem,3.6vw,3rem);font-weight:600;letter-spacing:-.04em;line-height:1}
@@ -307,8 +326,6 @@ main,.nav,.foot{position:relative;z-index:1}
 .quiz-figures > div:last-child{border-right:0}
 .quiz-figures dt{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
 .quiz-figures dd{font-size:1.35rem;font-weight:600;letter-spacing:-.03em;margin-top:5px}
-
-.quiz-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
 
 /* ===========================================================================
    Model chapters
@@ -956,22 +973,3 @@ main,.nav,.foot{position:relative;z-index:1}
   padding-bottom:22px;max-width:68ch;
 }
 
-/* ===========================================================================
-   Next step — the three ways in
-   =========================================================================== */
-
-.next{padding-block:0;background:var(--paper);position:relative;z-index:2}
-.next-box{
-  display:grid;grid-template-columns:1.5fr 1fr;gap:clamp(24px,4vw,64px);
-  align-items:center;
-  border:1px solid var(--line);border-radius:14px;background:var(--paper-2);
-  padding:clamp(26px,3.4vw,48px);
-  max-width:calc(var(--wrap) - var(--pad) * 2);margin-inline:auto;
-}
-.next-body{font-size:clamp(1rem,1.35vw,1.24rem);line-height:1.55;letter-spacing:-.01em}
-.next-actions{display:grid;gap:10px;justify-items:stretch}
-.next-actions .btn{justify-content:center;text-align:center}
-
-@media (max-width:860px){
-  .next-box{grid-template-columns:1fr;align-items:start}
-}

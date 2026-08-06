@@ -68,34 +68,44 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const key = decide();
     if (!key) { out.hidden = true; return; }
 
+    /* The ways in are the same three every time — a recommendation is only
+       useful next to the thing you do about it. */
+    const ways = NEXT.actions.map(a => `
+      <a class="btn btn-ghost" href="mailto:${CTA.email}?subject=${encodeURIComponent(a.subject)}">${a.t}</a>`).join('');
+
+    const side = lead => `
+      <div class="quiz-side">
+        ${lead}
+        ${ways}
+        <p class="quiz-note">${NEXT.body}</p>
+        <button class="quiz-again mono" type="button">${QUIZ.again}</button>
+      </div>`;
+
     if (key === 'bigger') {
       const b = QUIZ.bigger;
       out.innerHTML = `
-        <p class="quiz-result-label mono">${QUIZ.resultLabel}</p>
-        <h3 class="quiz-result-name">${b.name}</h3>
-        <p class="quiz-result-lead">${b.lead}</p>
-        <p class="quiz-result-body">${b.body}</p>
-        <div class="quiz-actions">
-          <a class="btn" href="${b.href}">${b.cta}</a>
-          <button class="btn btn-ghost quiz-again" type="button">${QUIZ.again}</button>
-        </div>`;
+        <div class="quiz-main">
+          <p class="quiz-result-label mono">${QUIZ.resultLabel}</p>
+          <h3 class="quiz-result-name">${b.name}</h3>
+          <p class="quiz-result-lead">${b.lead}</p>
+          <p class="quiz-result-body">${b.body}</p>
+        </div>
+        ${side(`<a class="btn" href="${b.href}">${b.cta}</a>`)}`;
     } else {
       const m = MODELS.find(x => x.key === key);
       out.innerHTML = `
-        <p class="quiz-result-label mono">${QUIZ.resultLabel}</p>
-        <h3 class="quiz-result-name">${m.name}</h3>
-        <p class="quiz-result-lead">${m.lead}</p>
-        <p class="quiz-result-body">${m.body}</p>
-        <dl class="quiz-figures">
-          <div><dt class="mono">Replaces</dt><dd>${m.replaces.replace('Replaces a ', '')}</dd></div>
-          <div><dt class="mono">Output</dt><dd>${m.stats[0].v} ${m.stats[0].u}</dd></div>
-          <div><dt class="mono">Batches</dt><dd>${m.stats[1].v} / hour</dd></div>
-        </dl>
-        <div class="quiz-actions">
-          <a class="btn" href="#m-${m.key}">See the ${m.name.replace('Typhoon ', '')}</a>
-          <a class="btn btn-ghost" href="#contact">${QUIZ.cta}</a>
-          <button class="btn btn-ghost quiz-again" type="button">${QUIZ.again}</button>
-        </div>`;
+        <div class="quiz-main">
+          <p class="quiz-result-label mono">${QUIZ.resultLabel}</p>
+          <h3 class="quiz-result-name">${m.name}</h3>
+          <p class="quiz-result-lead">${m.lead}</p>
+          <p class="quiz-result-body">${m.body}</p>
+          <dl class="quiz-figures">
+            <div><dt class="mono">Replaces</dt><dd>${m.replaces.replace('Replaces a ', '')}</dd></div>
+            <div><dt class="mono">Output</dt><dd>${m.stats[0].v} ${m.stats[0].u}</dd></div>
+            <div><dt class="mono">Batches</dt><dd>${m.stats[1].v} / hour</dd></div>
+          </dl>
+        </div>
+        ${side(`<a class="btn" href="#m-${m.key}">See the ${m.name.replace('Typhoon ', '')}</a>`)}`;
     }
 
     out.hidden = false;
@@ -284,15 +294,6 @@ $('.calc .eyebrow').textContent = CALC.eyebrow;
 
 $('.svc-list').innerHTML = SERVICE.map(s => `
   <li data-rise><h3>${s.t}</h3><p>${s.d}</p></li>`).join('');
-
-/* ══════════════════════════════════════════════════════ NEXT STEP ═══════ */
-
-(function next() {
-  $('.next-body').textContent = NEXT.body;
-  $('.next-actions').innerHTML = NEXT.actions.map(a => `
-    <a class="btn${a.primary ? '' : ' btn-ghost'}"
-       href="mailto:${CTA.email}?subject=${encodeURIComponent(a.subject)}">${a.t}</a>`).join('');
-})();
 
 /* ════════════════════════════════════════════════════════ CONTACT ═══════ */
 
