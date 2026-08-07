@@ -14,6 +14,6 @@ for (const directory of ["css", "img", "js", "models"]) {
   });
 }
 
-for (const file of ["index.html", "robots.txt"]) {
+for (const file of ["index.html", "robots.txt", "_headers"]) {
   await cp(resolve(root, file), resolve(publicDir, file));
 }
