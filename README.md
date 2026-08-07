@@ -21,12 +21,36 @@ bundler — the same shape as `typhoon-configurator/`.
 | `css/style.css` | All styling |
 | `models/*.glb` | The three machines, ~1 MB each |
 | `img/hero/*.webp` | Opening image — separate desktop and mobile crops |
+| `img/try/*.webp` | Photographs for the three "before you commit" cards |
 | `img/clients/*.webp` | Client logos and photographs, pulled from typhoon.coffee |
 | `js/calculator.js` | Savings calculator — arithmetic ported from `typhoon-roi-calculator/` |
 | `img/logo.svg` | Wordmark, ink-coloured, inverted by CSS on the dark section |
 
 **To change wording, numbers or prices, edit `js/content.js`.** Nothing else
 needs touching for a content change.
+
+Everything from `package.json` down — `app/`, `build/`, `worker/`,
+`next.config.ts`, `scripts/prepare-static.mjs`, `_headers`, `.openai/` — is a
+deployment wrapper added separately, not part of the site. It copies
+`css/ img/ js/ models/ index.html` into `public/` and changes none of them.
+
+---
+
+## The page, in order
+
+| Section | id | Built by |
+|---------|-----|---------|
+| Hero — photograph, headline, badges | `#hero` | `HERO` |
+| Model finder — two questions, one recommendation, three ways in | `#finder` | `QUIZ` + `NEXT` |
+| Three machine chapters — 3D, specs, colour presets | `#lineup` | `MODELS` + `PRESETS` |
+| Software — the auto-repeat explainer and feature grid | `#software` | `SOFTWARE` |
+| Comparison against a drum | `#compare` | `COMPARE` |
+| Clients | `#clients` | `CLIENTS` |
+| Before you commit — samples, online session, showroom | `#try` | `TRY` |
+| Savings calculator | `#calc` | `CALC` + `js/calculator.js` |
+| Service | `#service` | `SERVICE` |
+| FAQ | `#faq` | `FAQ` |
+| Contact | `#contact` | `CTA` |
 
 ---
 
@@ -141,6 +165,31 @@ brightness multiply: gamma opens the shadows and leaves the lamps where the
 lighting put them, where a flat multiply would blow them out. To regenerate
 from a new render, that recipe is a few lines of Pillow — gamma 1.20,
 brightness 1.06, saturation 1.04.
+
+## Phones behave differently on purpose
+
+Three separate things made the machines judder on a phone, and all three fixes
+are easy to undo by accident:
+
+- **The canvas must not be sized in `dvh`.** It is `position:fixed; inset:0`,
+  which already fills the visual viewport. Adding `height:100dvh` on top made
+  it resize every time the address bar slid, and each resize reallocates the
+  drawing buffer mid-scroll.
+- **`.chapter-void` is `40svh`, not `40dvh`.** It is the box the machine is
+  fitted into; in `dvh` it changed size whenever the address bar moved, and the
+  machine jumped with it. `svh` does not move.
+- **Rotation runs on time, not on scroll, when `view.narrow`.** Momentum
+  scrolling reports position in coarse irregular jumps and a rotation sampled
+  from it inherits every one — the page glides while the machine stutters. On
+  desktop the chapter is pinned, the machine only turns, and scroll is a fine
+  clock for that; on a phone it is not.
+
+The viewport is measured from **the canvas**, not from `innerWidth`, and
+watched with a `ResizeObserver` — same box `getBoundingClientRect()` reports
+against, and it fires on the first layout, which a `resize` event never does.
+Pixel ratio is capped at 1.6 on phones.
+
+---
 
 ## Lighting
 
@@ -292,3 +341,22 @@ defects. Those are the original's numbers.
 
 **If the calculator changes upstream**, port the logic across again rather than
 editing both: `typhoon-roi-calculator/` stays the source of truth for the maths.
+
+---
+
+## What is deliberately not finished
+
+- **Prices.** `MODELS[].price` is `null` on all three, so each shows "Price on
+  request". There is no verified public PRO price list to publish from.
+- **`QUIZ.bigger`** hands 4,500 kg/week and up to typhoon.coffee. This page
+  covers the PRO range only; 20 and 30 kg live on the main site.
+- **`COLOURS.ctaHref`** and the configurator link point at typhoon.coffee until
+  the configurator has a URL of its own.
+- **The FAQ mixes two sources.** "Pricing & payment" is typhoon.coffee's
+  wording verbatim; the other seven categories were written from
+  `company-knowledge/` because the main site keeps them behind Framer tabs that
+  only fetch on a real click. If exact parity matters, paste the site's wording
+  over the entry in `FAQ.groups`.
+- **One factual conflict to resolve:** `NEXT.body` says installation needs
+  "only 6 m² of space" (the main site's claim) while the spec tables and FAQ
+  say a minimum room area of 15 / 25 / 40 m². Both are currently on the page.
