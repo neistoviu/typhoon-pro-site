@@ -215,18 +215,48 @@ const voidEls    = chapterEls.map(c => c.querySelector('.chapter-void'));
 
 const view = { w: 0, h: 0, visW: 0, visH: 0, narrow: false };
 
+/* Measured from the canvas, not from `innerWidth`/`innerHeight`. The canvas is
+   a fixed, inset:0 element, so its client box *is* the visual viewport and it
+   is the same box `getBoundingClientRect()` reports against — reading two
+   different sources is how the model ends up a few pixels out of step with the
+   page it is supposed to be welded to. */
 function resize() {
-  const w = innerWidth, h = innerHeight;
+  const w = canvas.clientWidth  || innerWidth;
+  const h = canvas.clientHeight || innerHeight;
+
+  /* A zero measurement is not a viewport, it is a page that has not been laid
+     out yet. Writing it through gives a NaN camera aspect and a 0×0 drawing
+     buffer, and nothing recovers on its own. */
+  if (w <= 0 || h <= 0) return;
+
+  view.narrow = w <= 1000;                 // matches the CSS breakpoint
+
+  /* Reallocating the drawing buffer is expensive, and on a phone the address
+     bar sliding fires `resize` continuously. Height-only wobble under the
+     address-bar threshold is ignored; the projection is barely affected and
+     the alternative is a hitch on every scroll. */
+  const sameW = w === view.w;
+  const smallH = Math.abs(h - view.h) < 120;
+  if (sameW && smallH && view.visH) return;
+
   view.w = w; view.h = h;
-  view.narrow = w <= 1000;          // matches the CSS breakpoint
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  /* Phones do not need two device pixels per CSS pixel across half a million
+     triangles — the dropped frames read as judder long before the extra
+     sharpness reads as quality. */
+  renderer.setPixelRatio(Math.min(devicePixelRatio, view.narrow ? 1.6 : 2));
   renderer.setSize(w, h, false);
 
   view.visH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   view.visW = view.visH * camera.aspect;
 }
-addEventListener('resize', resize);
+/* Watch the canvas rather than the window. A ResizeObserver fires once the
+   element actually has a box — including the very first layout, which a
+   `resize` event never reports — so the scene can no longer come up stuck at
+   whatever size the page happened to have while it was still being built. */
+new ResizeObserver(resize).observe(canvas);
+addEventListener('orientationchange', () => { view.w = 0; resize(); });
 
 /* ═══════════════════════════════════════════════════ choreography ══════ */
 /*
@@ -282,6 +312,7 @@ function choreograph() {
 
 function layout(dt) {
   const mid = view.h * 0.5;
+  spinClock += dt;
 
   rigs.forEach((r, i) => {
     if (!r) return;
@@ -289,9 +320,21 @@ function layout(dt) {
     const slot = slotOf(voidEls[i]);
     const ch = chapterEls[i].getBoundingClientRect();
 
-    /* One full turn across this machine's own chapter. */
+    /* Rotation.
+
+       Desktop: one full turn across the chapter, driven by scroll. The chapter
+       is pinned there, so the machine is standing still and only turning —
+       scroll is a perfectly good clock for that.
+
+       Phones: driven by time instead. Momentum scrolling delivers position in
+       coarse, irregular jumps, and a rotation sampled from it inherits every
+       one of them — the machine visibly stutters even when the page itself is
+       gliding. A constant turn is smooth by construction and cannot fall out
+       of step with a scroll it no longer listens to. */
     const spin = clamp01((mid - ch.top) / Math.max(1, ch.height));
-    const tRot = FRONT + ease(spin) * TAU;
+    const tRot = view.narrow
+      ? FRONT + spinClock * 0.34
+      : FRONT + ease(spin) * TAU;
 
     /* Fitted on the rotation-safe radius, not the front-on width, so a
        machine never grows into the copy halfway through its turn. */
@@ -304,7 +347,9 @@ function layout(dt) {
     r.x = slot.x;
     r.y = slot.y;
     r.s = fit;
-    const k = reduced ? 1 : 1 - Math.exp(-dt * 11);
+    /* A time-driven turn is already smooth, and damping it would only add
+       lag; the scroll-driven one is smoothed because scroll is not. */
+    const k = (reduced || view.narrow) ? 1 : 1 - Math.exp(-dt * 11);
     r.rot += (tRot - r.rot) * k;
 
     r.rig.position.set(r.x, r.y, 0);
@@ -318,7 +363,7 @@ function layout(dt) {
 
 /* ══════════════════════════════════════════════════════════ loop ═══════ */
 
-let last = 0, running = false;
+let last = 0, running = false, spinClock = 0;
 
 /* Nothing below the last chapter shows the canvas, so nothing below it needs
    to be drawn. */

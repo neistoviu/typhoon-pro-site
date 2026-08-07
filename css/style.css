@@ -134,7 +134,10 @@ ul,ol{list-style:none}
    =========================================================================== */
 
 #stage{
-  position:fixed;inset:0;width:100vw;height:100dvh;
+  /* A fixed element with inset:0 already fills the visual viewport. Sizing it
+     in dvh on top of that made the canvas resize every time the mobile address
+     bar slid, and every resize reallocates the drawing buffer mid-scroll. */
+  position:fixed;inset:0;width:100%;height:100%;
   z-index:0;pointer-events:none;
   opacity:0;transition:opacity .9s var(--ease);
 }
@@ -480,7 +483,10 @@ main,.nav,.foot{position:relative;z-index:1}
     padding-top:clamp(78px,10vh,110px);
     padding-bottom:clamp(56px,9vh,90px);
   }
-  .chapter-void{flex:none;height:40dvh}
+  /* svh, not dvh: the block the machine is fitted into must not change size
+     while the address bar collapses, or the machine jumps every time the
+     scroll direction changes. */
+  .chapter-void{flex:none;height:40svh}
   .chapter-panel{max-width:none}
 }
 
