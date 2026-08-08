@@ -1,37 +1,25 @@
-/* ---------------------------------------------------------------------------
-   Savings calculator.
+/* Savings calculator. All editable assumptions and labels live in content.js. */
 
-   The arithmetic is lifted verbatim from `typhoon-roi-calculator/` — every
-   constant, every formula, the same numbers on screen. Only two things
-   changed: the inline `onclick` attributes became listeners so this can be a
-   module, and the original's `document.title` write was dropped, because on
-   a page it is not the only thing there it would have renamed the whole tab.
-
-   Styling is the site's, not the original's. See `.calc-*` in style.css.
---------------------------------------------------------------------------- */
+import { CALCULATOR } from './content.js';
 
 const $ = id => document.getElementById(id);
 
-const KG_TO_LB = 2.20462;
-const WEEKS_PER_MONTH = 4.33;
-const TYPHOON_BATCHES_H = 7;
-const WORK_HOURS_DAY = 8;
-const WORK_DAYS_WEEK = 5;
-const DRUM_BATCHES_H = 3.5;
-const DRUM_LOAD = 0.90;
-const TYPHOON_ENERGY_KG = 0.30;
-const DRUM_ENERGY_KG = 0.75;
-const TYPHOON_DEFECT = 0.01;
-const DRUM_DEFECT = 0.06;
-
-const COST_DEFAULTS = {
-  EUR: { energy: 0.25, labor: 15, green: 10 },
-  USD: { energy: 0.13, labor: 18, green: 5 },
-};
-
-const BATCH_OPTIONS_KG = [2.5, 5, 10, 20, 30];
-
-const state = { currency: 'EUR', batchKg: 10, monthlyKg: 6500 };
+const A = CALCULATOR.assumptions;
+const KG_TO_LB = A.kgToLb;
+const WEEKS_PER_MONTH = A.weeksPerMonth;
+const TYPHOON_BATCHES_H = A.typhoonBatchesPerHour;
+const WORK_HOURS_DAY = A.workHoursPerDay;
+const WORK_DAYS_WEEK = A.workDaysPerWeek;
+const DRUM_BATCHES_H = A.drumBatchesPerHour;
+const DRUM_LOAD = A.drumLoad;
+const TYPHOON_ENERGY_KG = A.typhoonEnergyKwhKg;
+const DRUM_ENERGY_KG = A.drumEnergyKwhKg;
+const TYPHOON_DEFECT = A.typhoonDefectRate;
+const DRUM_DEFECT = A.drumDefectRate;
+const COST_DEFAULTS = A.costs;
+const BATCH_OPTIONS_KG = CALCULATOR.batchOptionsKg;
+const state = { ...CALCULATOR.initial };
+const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
 
 function setCurrency(next) {
   state.currency = next;
@@ -231,31 +219,36 @@ function updateCalculationDetails(monthlyKg, weeklyKg, maxMonthlyKg, typhoonHour
   const greenUnit = state.currency === 'USD' ? 'lb' : 'kg';
   const greenCostPerKg = state.currency === 'USD' ? costs.green * KG_TO_LB : costs.green;
 
-  $('calcIntro').textContent =
-    'Current setup: ' + massText(state.batchKg, 'batch') + ' Typhoon and ' +
-    massText(monthlyKg, 'monthly') + '/month. Max for this Typhoon in one 40-hour week: ' +
-    massText(maxMonthlyKg, 'monthly') + '/month.';
-  $('volumeFormula').textContent =
-    massText(monthlyKg, 'monthly') + '/month = ' + massText(weeklyKg, 'weekly') + '/week';
-  $('drumSetupFormula').textContent =
-    'To match this output on Drum in a 40-hour week: about ' +
-    numberText(sameSizeDrumCount, 1) + ' same-size drum roasters, or one ~' +
-    massText(equivalentDrumBatchKg, 'batch') + ' drum.';
-  $('laborFormula').textContent =
-    'Typhoon ' + numberText(typhoonHoursMonth, 1) + ' h/month vs same-size Drum ' +
-    numberText(drumHoursMonth, 1) + ' h/month = ' + numberText(savedHoursMonth, 1) +
-    ' saved hours × ' + costMoney(costs.labor) + '/hour = ' + money(laborMonth);
-  $('energyFormula').textContent =
-    numberText(monthlyKg, 0) + ' kg/month × 0.45 kWh/kg × ' +
-    costMoney(costs.energy) + '/kWh = ' + money(energyMonth);
-  $('defectFormula').textContent =
-    numberText(monthlyKg, 0) + ' kg/month × 5% × ' +
-    costMoney(greenCostPerKg) + '/kg = ' + money(defectMonth);
+  const T = CALCULATOR.method.templates;
+  $('calcIntro').textContent = fill(T.intro, {
+    currentSetup: CALCULATOR.method.labels.currentSetup, machine: massText(state.batchKg, 'batch'),
+    monthly: massText(monthlyKg, 'monthly'), maxOutput: CALCULATOR.method.labels.maxOutput,
+    maximum: massText(maxMonthlyKg, 'monthly'),
+  });
+  $('volumeFormula').textContent = fill(T.volume, {
+    monthly: massText(monthlyKg, 'monthly'), weekly: massText(weeklyKg, 'weekly'),
+  });
+  $('drumSetupFormula').textContent = fill(T.drumSetup, {
+    comparable: CALCULATOR.method.labels.comparable, count: numberText(sameSizeDrumCount, 1),
+    equivalent: CALCULATOR.method.labels.equivalent, batch: massText(equivalentDrumBatchKg, 'batch'),
+  });
+  $('laborFormula').textContent = fill(T.labour, {
+    typhoonHours: numberText(typhoonHoursMonth, 1), drumHours: numberText(drumHoursMonth, 1),
+    savedHours: numberText(savedHoursMonth, 1), hourlyCost: costMoney(costs.labor), saving: money(laborMonth),
+  });
+  $('energyFormula').textContent = fill(T.energy, {
+    volume: numberText(monthlyKg, 0), difference: numberText(DRUM_ENERGY_KG - TYPHOON_ENERGY_KG, 2),
+    energyCost: costMoney(costs.energy), saving: money(energyMonth),
+  });
+  $('defectFormula').textContent = fill(T.defect, {
+    volume: numberText(monthlyKg, 0), difference: numberText((DRUM_DEFECT - TYPHOON_DEFECT) * 100, 1),
+    coffeeCost: costMoney(greenCostPerKg), saving: money(defectMonth),
+  });
   $('defaultCostList').innerHTML =
-    '<li>Electricity: ' + costMoney(costs.energy) + '/kWh</li>' +
-    '<li>Labour: ' + costMoney(costs.labor) + '/hour</li>' +
-    '<li>Green coffee: ' + costMoney(costs.green) + '/' + greenUnit + '</li>' +
-    '<li>Total current saving: ' + money(totalMonth) + '/month</li>';
+    '<li>' + CALCULATOR.method.labels.electricity + ': ' + costMoney(costs.energy) + '/kWh</li>' +
+    '<li>' + CALCULATOR.method.labels.labour + ': ' + costMoney(costs.labor) + '/hour</li>' +
+    '<li>' + CALCULATOR.method.labels.greenCoffee + ': ' + costMoney(costs.green) + '/' + greenUnit + '</li>' +
+    '<li>' + CALCULATOR.method.labels.currentSaving + ': ' + money(totalMonth) + '/month</li>';
 }
 
 /* --- wiring ------------------------------------------------------------- */
@@ -275,3 +268,12 @@ addEventListener('keydown', e => { if (e.key === 'Escape') closeCalc(); });
 
 syncSliderRanges();
 recalc();
+
+window.__typhoonCalculator = {
+  getState: () => ({
+    currency: state.currency,
+    batch_kg: state.batchKg,
+    monthly_kg: Math.round(state.monthlyKg),
+    estimated_monthly_saving: $('monthlySavings').textContent,
+  }),
+};

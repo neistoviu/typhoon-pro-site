@@ -3,8 +3,9 @@
    scroll reveals, the nav, the spec disclosures and the auto-repeat animation.
 --------------------------------------------------------------------------- */
 
-import { MODELS, HERO, QUIZ, PRESETS, SOFTWARE, COMPARE, CLIENTS, TRY, CALC, FAQ,
-         SERVICE, NEXT, CTA } from './content.js';
+import { SITE, NAV, MODEL_UI, MODELS, HERO, QUIZ, PRESETS, SOFTWARE, COMPARE,
+         CLIENTS, TRY, CALCULATOR, FAQ, SERVICE, CUSTOMIZATION, NEXT, CTA, FORM,
+         FOOTER } from './content.js';
 
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -15,6 +16,72 @@ const el = (tag, cls, html) => {
   return n;
 };
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const leadContext = {};
+
+const track = (name, detail = {}) => {
+  const payload = { event: name, ...detail };
+  window.dataLayer?.push(payload);
+  window.posthog?.capture?.(name, detail);
+  document.dispatchEvent(new CustomEvent('typhoon:analytics', { detail: payload }));
+};
+
+/* ═══════════════════════════════════════════════ SITE + NAVIGATION ═════ */
+
+(function siteChrome() {
+  document.title = SITE.title;
+  $('meta[name="description"]').content = SITE.description;
+  $('meta[property="og:title"]').content = SITE.title;
+  $('meta[property="og:description"]').content = SITE.description;
+  $('.nav-brand img').alt = SITE.logoAlt;
+  $('.nav-brand span').textContent = NAV.seriesLabel;
+  $('.hero-media img').alt = SITE.heroImageAlt;
+
+  const link = item => `<a href="${item.href}">${item.label}</a>`;
+  $('.nav-links').innerHTML = NAV.items.map(link).join('');
+  $('.nav-links').setAttribute('aria-label', NAV.primaryLabel);
+  $('.nav-cta').textContent = NAV.cta;
+
+  const more = $('.nav-more');
+  const moreToggle = $('.nav-more-toggle', more);
+  const moreMenu = $('.nav-more-menu', more);
+  moreToggle.textContent = NAV.largerLabel;
+  moreMenu.innerHTML = SITE.fullRange.map(link).join('');
+
+  const menuToggle = $('.nav-menu-toggle');
+  $('span', menuToggle).textContent = NAV.menuLabel;
+  const mobile = $('.nav-mobile');
+  $('.nav-mobile-links').setAttribute('aria-label', NAV.mobileLabel);
+  $('.nav-mobile-links').innerHTML = [
+    ...NAV.items.map(link),
+    `<span class="nav-mobile-label">${NAV.largerLabel}</span>`,
+    ...SITE.fullRange.map(link),
+    `<button class="btn" type="button" data-lead-intent="pricing" data-source-section="mobile_navigation">${NAV.cta}</button>`,
+  ].join('');
+
+  const closeMore = () => {
+    moreToggle.setAttribute('aria-expanded', 'false');
+    moreMenu.hidden = true;
+  };
+  moreToggle.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = moreMenu.hidden;
+    moreMenu.hidden = !open;
+    moreToggle.setAttribute('aria-expanded', String(open));
+  });
+  document.addEventListener('click', e => { if (!more.contains(e.target)) closeMore(); });
+
+  const setMobile = open => {
+    mobile.hidden = !open;
+    menuToggle.setAttribute('aria-expanded', String(open));
+    $('span', menuToggle).textContent = open ? NAV.closeLabel : NAV.menuLabel;
+    document.body.classList.toggle('menu-open', open);
+  };
+  menuToggle.addEventListener('click', () => setMobile(mobile.hidden));
+  $('.nav-mobile-links').addEventListener('click', e => {
+    if (e.target.closest('a,button')) setMobile(false);
+  });
+  addEventListener('resize', () => { if (innerWidth > 860) setMobile(false); }, { passive: true });
+})();
 
 /* ═══════════════════════════════════════════════════════════ HERO ═══════ */
 
@@ -23,10 +90,12 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   $('.hero-title').innerHTML = HERO.title
     .map(l => `<span class="ln"><i>${l}</i></span>`).join('');
   $('.hero-sub').textContent = HERO.sub;
-  const [a, b] = $$('.hero-actions a');
-  a.textContent = HERO.cta;
-  b.textContent = HERO.ctaSecondary;
+  const primary = $('.hero-actions button');
+  const secondary = $('.hero-actions a');
+  primary.textContent = HERO.cta;
+  secondary.textContent = HERO.ctaSecondary;
   $('.scroll-hint').insertAdjacentHTML('afterbegin', HERO.scrollHint);
+  $('.hero-badges').innerHTML = HERO.badges.map(x => `<li>${x}</li>`).join('');
 })();
 
 /* ═══════════════════════════════════════════════════ MODEL FINDER ═══════ */
@@ -71,7 +140,8 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     /* The ways in are the same three every time — a recommendation is only
        useful next to the thing you do about it. */
     const ways = NEXT.actions.map(a => `
-      <a class="btn btn-ghost" href="mailto:${CTA.email}?subject=${encodeURIComponent(a.subject)}">${a.t}</a>`).join('');
+      <button class="btn btn-ghost" type="button" data-lead-intent="${a.intent}"
+              data-source-section="model_finder">${a.t}</button>`).join('');
 
     const side = lead => `
       <div class="quiz-side">
@@ -90,9 +160,11 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
           <p class="quiz-result-lead">${b.lead}</p>
           <p class="quiz-result-body">${b.body}</p>
         </div>
-        ${side(`<a class="btn" href="${b.href}">${b.cta}</a>`)}`;
+        ${side(`<div class="quiz-large-links">${b.links.map(x =>
+          `<a class="btn" href="${x.href}">${x.label}</a>`).join('')}</div>`)}`;
     } else {
       const m = MODELS.find(x => x.key === key);
+      leadContext.model = m.name;
       out.innerHTML = `
         <div class="quiz-main">
           <p class="quiz-result-label mono">${QUIZ.resultLabel}</p>
@@ -100,12 +172,14 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
           <p class="quiz-result-lead">${m.lead}</p>
           <p class="quiz-result-body">${m.body}</p>
           <dl class="quiz-figures">
-            <div><dt class="mono">Replaces</dt><dd>${m.replaces.replace('Replaces a ', '')}</dd></div>
-            <div><dt class="mono">Output</dt><dd>${m.stats[0].v} ${m.stats[0].u}</dd></div>
-            <div><dt class="mono">Batches</dt><dd>${m.stats[1].v} / hour</dd></div>
+            <div><dt class="mono">${MODEL_UI.replacesLabel}</dt><dd>${m.replaces.replace('Replaces a ', '')}</dd></div>
+            <div><dt class="mono">${MODEL_UI.outputLabel}</dt><dd>${m.stats[0].v} ${m.stats[0].u}</dd></div>
+            <div><dt class="mono">${MODEL_UI.batchesLabel}</dt><dd>${m.stats[1].v} / hour</dd></div>
           </dl>
         </div>
-        ${side(`<a class="btn" href="#m-${m.key}">See the ${m.name.replace('Typhoon ', '')}</a>`)}`;
+        ${side(`<a class="btn" href="#m-${m.key}">See the ${m.name.replace('Typhoon ', '')}</a>
+          <button class="btn btn-ghost" type="button" data-lead-intent="pricing"
+                  data-lead-model="${m.name}" data-source-section="model_finder_result">${QUIZ.cta}</button>`)}`;
     }
 
     out.hidden = false;
@@ -116,15 +190,40 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
       out.hidden = true;
       s.scrollIntoView({ block: 'start' });
     });
+    track('model_finder_result', { model: key, status: picked.status || '', volume: picked.volume || '' });
   }
 
   $$('.quiz-opt', body).forEach(btn => btn.addEventListener('click', () => {
     const { q, v } = btn.dataset;
     picked[q] = v;
+    leadContext[q] = v;
     $$(`.quiz-opt[data-q="${q}"]`, body)
       .forEach(o => o.setAttribute('aria-pressed', o === btn));
     render();
   }));
+})();
+
+(function modelCards() {
+  $('.model-cards-head .h3').textContent = MODEL_UI.cardsTitle;
+  $('.model-cards-head .lede').textContent = MODEL_UI.cardsSub;
+  $('.model-card-grid').innerHTML = MODELS.map(m => {
+    const area = m.specs.find(x => x.group === 'Installation')?.rows
+      .find(([label]) => label === 'Minimum room area')?.[1] || '';
+    return `<article class="model-card" data-rise>
+      <p class="model-card-kicker mono">${m.batch}</p>
+      <h3>${m.name}</h3>
+      <p>${m.forWhom}</p>
+      <dl>
+        <div><dt>${MODEL_UI.outputLabel}</dt><dd>${m.stats[0].v} ${m.stats[0].u}</dd></div>
+        <div><dt>${MODEL_UI.areaLabel}</dt><dd>${area}</dd></div>
+      </dl>
+      <div class="model-card-actions">
+        <a class="btn btn-ghost" href="#m-${m.key}">${MODEL_UI.viewLabel}</a>
+        <button class="btn" type="button" data-lead-intent="pricing"
+                data-lead-model="${m.name}" data-source-section="model_card">${MODEL_UI.quoteLabel}</button>
+      </div>
+    </article>`;
+  }).join('');
 })();
 
 /* ═══════════════════════════════════════════════ MODEL CHAPTERS ═════════ */
@@ -162,16 +261,17 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
      process actually wants anyway. */
   const price = m.price
     ? `<div class="price-tag"><span class="p">${m.price}</span><span class="n">${m.priceNote}</span></div>`
-    : `<div class="price-tag"><span class="p">Price on request</span><span class="n">${m.priceNote}</span></div>`;
+    : `<div class="price-tag"><span class="p">${MODEL_UI.priceOnRequest}</span><span class="n">${m.priceNote}</span></div>`;
 
   return `
   <section class="chapter" id="m-${m.key}" data-model="${m.key}">
     <div class="chapter-inner">
       <div class="chapter-stage">
         <div class="chapter-void"></div>
+        <p class="model-load-status mono" aria-live="polite">${MODEL_UI.loading3d}</p>
         <div class="presets" data-rise>
-          <span class="presets-label mono">Colour</span>
-          <div class="swatches" role="group" aria-label="Colour presets">${swatches}</div>
+          <span class="presets-label mono">${MODEL_UI.colourLabel}</span>
+          <div class="swatches" role="group" aria-label="${MODEL_UI.colourGroupLabel}">${swatches}</div>
           <span class="presets-name mono"></span>
         </div>
       </div>
@@ -187,7 +287,8 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
         <div class="specs" data-rise>${specs}</div>
         <div class="chapter-actions" data-rise>
           ${price}
-          <a class="btn" href="#contact">Get a quote</a>
+          <button class="btn" type="button" data-lead-intent="pricing"
+                  data-lead-model="${m.name}" data-source-section="3d_chapter">${MODEL_UI.quoteLabel}</button>
         </div>
       </div>
     </div>
@@ -236,7 +337,8 @@ $$('.presets').forEach(box => {
   $('.lede', s).textContent = CLIENTS.sub;
   const cta = $('.clients-cta', s);
   cta.textContent = CLIENTS.cta;
-  cta.href = CLIENTS.ctaHref;
+  cta.dataset.leadIntent = CLIENTS.ctaIntent;
+  cta.dataset.sourceSection = 'client_references';
 
   $('.client-grid').innerHTML = CLIENTS.items.map(c => `
     <li class="client" data-rise>
@@ -254,12 +356,55 @@ $$('.presets').forEach(box => {
         </p>
       </div>
     </li>`).join('');
+
+  const filters = $('.client-filters');
+  filters.innerHTML = CLIENTS.filters.map((f, i) => `
+    <button type="button" aria-pressed="${i === 0}" data-filter="${f}">${f}</button>`).join('');
+  filters.addEventListener('click', e => {
+    const button = e.target.closest('button');
+    if (!button) return;
+    const filter = button.dataset.filter;
+    $$('button', filters).forEach(x => x.setAttribute('aria-pressed', String(x === button)));
+    $$('.client', s).forEach((card, i) => {
+      const client = CLIENTS.items[i];
+      card.hidden = filter !== 'All' && !client.tags.includes(filter);
+    });
+    track('client_filter', { filter });
+  });
 })();
 
 /* ═══════════════════════════════════════════════════════ SOFTWARE ═══════ */
 
 (function software() {
   const s = $('.software');
+  $('.wrap', s).innerHTML = `
+    <div class="sw-head">
+      <p class="eyebrow mono" data-rise></p>
+      <h2 class="h2" data-rise></h2>
+      <p class="lede" data-rise></p>
+    </div>
+    <div class="repeat" data-rise>
+      <div class="repeat-head">
+        <h3 class="h3">${SOFTWARE.repeat.title}</h3>
+        <p>${SOFTWARE.repeat.body}</p>
+      </div>
+      <div class="repeat-tabs mono" role="tablist"></div>
+      <div class="repeat-stage">
+        <div class="repeat-chart">
+          <svg class="repeat-svg" viewBox="0 0 900 470" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+        </div>
+        <div class="repeat-side">
+          <p class="repeat-desc"></p>
+          <dl class="repeat-readout mono">
+            ${SOFTWARE.repeat.readout.map(([key, label]) =>
+              `<div><dt>${label}</dt><dd data-r="${key}">${SOFTWARE.repeat.initial[key]}</dd></div>`).join('')}
+          </dl>
+          <p class="repeat-note mono">${SOFTWARE.repeat.note}</p>
+        </div>
+      </div>
+      <div class="repeat-stages mono"></div>
+    </div>
+    <ul class="sw-features"></ul>`;
   $('.eyebrow', s).textContent = SOFTWARE.eyebrow;
   $('.h2', s).textContent = SOFTWARE.title;
   $('.lede', s).textContent = SOFTWARE.sub;
@@ -285,6 +430,12 @@ $$('.presets').forEach(box => {
 
 (function tryIt() {
   const s = $('.try');
+  $('.wrap', s).innerHTML = `
+    <div class="try-head">
+      <p class="eyebrow mono" data-rise></p>
+      <h2 class="h2" data-rise></h2>
+    </div>
+    <ul class="try-grid"></ul>`;
   $('.eyebrow', s).textContent = TRY.eyebrow;
   $('.h2', s).textContent = TRY.title;
 
@@ -297,14 +448,74 @@ $$('.presets').forEach(box => {
       <div class="try-body">
         <h3>${t.name}</h3>
         <p>${t.body}</p>
-        <a class="btn btn-ghost" href="mailto:${CTA.email}?subject=${encodeURIComponent(t.subject)}">${t.cta}</a>
+        <button class="btn btn-ghost" type="button" data-lead-intent="${t.key === 'online' ? 'demo' : t.key}"
+                data-source-section="try_before_buying">${t.cta}</button>
       </div>
     </li>`).join('');
 })();
 
-/* The calculator's own logic lives in js/calculator.js — this only fills in
-   the section label from content.js like every other block. */
-$('.calc .eyebrow').textContent = CALC.eyebrow;
+/* ═════════════════════════════════════════════════════ CALCULATOR ═══════ */
+
+(function calculator() {
+  const s = $('.calc');
+  const formulaId = key => `${key}Formula`;
+  $('.wrap', s).innerHTML = `
+    <div class="calc-top">
+      <p class="eyebrow mono" data-rise>${CALCULATOR.eyebrow}</p>
+      <h2 class="h2" data-rise>${CALCULATOR.titleBefore}<span id="headlineSavings"></span>${CALCULATOR.titleAfter}</h2>
+      <p class="lede" data-rise>${CALCULATOR.sub}</p>
+    </div>
+    <div class="calc-grid" data-rise>
+      <div class="calc-inputs">
+        <h3 class="calc-h3">${CALCULATOR.setupTitle}</h3>
+        <div class="calc-field">
+          <div class="calc-field-head"><label for="batchRange">${CALCULATOR.machineLabel}</label><output id="batchValue"></output></div>
+          <input class="calc-range" id="batchRange" type="range" aria-label="${CALCULATOR.machineLabel}">
+          <div class="calc-ticks" id="batchTicks"></div>
+        </div>
+        <div class="calc-field">
+          <div class="calc-field-head"><label for="monthlyRange">${CALCULATOR.volumeLabel}</label><output id="monthlyValue"></output></div>
+          <input class="calc-range" id="monthlyRange" type="range" aria-label="${CALCULATOR.volumeLabel}">
+          <div class="calc-scale"><span id="monthlyMin"></span><span id="monthlyUnitLabel"></span><span id="monthlyMax"></span></div>
+        </div>
+        <div class="calc-field">
+          <p class="calc-h3">${CALCULATOR.currencyLabel}</p>
+          <div class="calc-currency" role="group" aria-label="${CALCULATOR.currencyLabel}">
+            ${CALCULATOR.currencies.map(c => `<button class="calc-cur-btn" id="${c.key.toLowerCase()}Btn" type="button">${c.label}</button>`).join('')}
+          </div>
+        </div>
+        <button class="calc-link" id="calcOpen" type="button">${CALCULATOR.methodOpen}</button>
+      </div>
+      <div class="calc-results">
+        <div class="calc-total">
+          <span class="calc-total-label mono">${CALCULATOR.totalLabel}</span>
+          <strong class="calc-total-value" id="monthlySavings"></strong>
+          <span class="calc-total-vs mono">${CALCULATOR.totalVs}</span>
+        </div>
+        <div class="calc-breakdown">
+          ${CALCULATOR.breakdown.map(x => `<div class="calc-row">
+            <span class="calc-row-label">${x.label}</span>
+            <span class="calc-bar"><i id="bar${x.key}"></i></span>
+            <strong class="calc-row-value" id="val${x.key}"></strong>
+          </div>`).join('')}
+        </div>
+        <p class="calc-disclaimer">${CALCULATOR.disclaimer}</p>
+        <button class="btn calc-cta" type="button" data-lead-intent="roi" data-source-section="roi_calculator">${CALCULATOR.cta}</button>
+      </div>
+    </div>
+    <div class="calc-modal" id="calcModal" aria-hidden="true">
+      <div class="calc-modal-panel" role="dialog" aria-modal="true" aria-labelledby="calcTitle">
+        <div class="calc-modal-head">
+          <div><h2 class="h3" id="calcTitle">${CALCULATOR.method.title}</h2><p id="calcIntro">${CALCULATOR.method.intro}</p></div>
+          <button class="calc-modal-close" id="calcClose" type="button">${CALCULATOR.methodClose}</button>
+        </div>
+        ${CALCULATOR.method.sections.map(x => `<section class="calc-section">
+          <h3>${x.title}</h3><p>${x.body}</p>
+          ${x.key === 'costs' ? '<ul class="calc-costs" id="defaultCostList"></ul>' : `<p class="calc-formula mono" id="${formulaId(x.key)}"></p>`}
+        </section>`).join('')}
+      </div>
+    </div>`;
+})();
 
 /* ════════════════════════════════════════════════════════════ FAQ ═══════ */
 
@@ -332,33 +543,213 @@ $('.calc .eyebrow').textContent = CALC.eyebrow;
   };
 
   $$('.faq-tab', tabs).forEach(b =>
-    b.addEventListener('click', () => show(+b.dataset.i)));
+    b.addEventListener('click', () => {
+      show(+b.dataset.i);
+      track('faq_tab', { category: FAQ.groups[+b.dataset.i].name });
+    }));
   show(0);
 })();
 
 /* ════════════════════════════════════════════════════════ SERVICE ═══════ */
 
-$('.svc-list').innerHTML = SERVICE.map(s => `
-  <li data-rise><h3>${s.t}</h3><p>${s.d}</p></li>`).join('');
+(() => {
+  const s = $('.service');
+  $('.wrap', s).innerHTML = `
+    <div class="service-head">
+      <p class="eyebrow mono" data-rise>${SERVICE.eyebrow}</p>
+      <h2 class="h2" data-rise>${SERVICE.title}</h2>
+      <p class="lede" data-rise>${SERVICE.sub}</p>
+    </div>
+    <ul class="svc-list">${SERVICE.items.map(item => `
+      <li data-rise><h3>${item.t}</h3><p>${item.d}</p></li>`).join('')}</ul>`;
+})();
+
+/* ═══════════════════════════════════════════════ CUSTOM CONFIGURATION ══ */
+
+(() => {
+  const s = $('.colours');
+  const cards = CUSTOMIZATION.images.map((src, i) => `
+    <figure class="swatch"><img src="img/colours/${src}" alt="${CUSTOMIZATION.title} — ${i + 1}"
+      width="680" height="680" loading="lazy" decoding="async"></figure>`).join('');
+  $('.wrap', s).innerHTML = `
+    <div class="colours-head">
+      <p class="eyebrow mono" data-rise>${CUSTOMIZATION.eyebrow}</p>
+      <h2 class="h2" data-rise>${CUSTOMIZATION.title}</h2>
+      <p class="lede" data-rise>${CUSTOMIZATION.sub}</p>
+      <button class="btn" type="button" data-lead-intent="colors" data-source-section="configuration">${CUSTOMIZATION.cta}</button>
+    </div>
+    <div class="swatch-rail" data-rise><div class="swatch-track">${cards}${cards}</div></div>`;
+})();
 
 /* ════════════════════════════════════════════════════════ CONTACT ═══════ */
 
-(function cta() {
+(function formsAndContact() {
+  const formMarkup = (prefix, modal = false) => `
+    <form class="lead-form" data-lead-form="${prefix}" novalidate>
+      <div class="lead-form-head">
+        <p class="eyebrow mono">${CTA.eyebrow}</p>
+        <h2 class="h3" ${modal ? 'id="modalFormTitle"' : ''}>${modal ? FORM.intents.pricing.title : FORM.title}</h2>
+        <p>${FORM.sub}</p>
+      </div>
+      <div class="lead-fields">
+        ${['name','email','phone'].map(key => `<label class="lead-field">
+          <span>${FORM.fields[key].label}</span>
+          <input type="${key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'}" name="${key}"
+            placeholder="${FORM.fields[key].placeholder}" autocomplete="${key === 'name' ? 'name' : key === 'email' ? 'email' : 'tel'}" required>
+        </label>`).join('')}
+        <fieldset class="lead-choice">
+          <legend>${FORM.fields.status.label}</legend>
+          <div>${FORM.fields.status.options.map((option, i) => `<label><input type="radio" name="current_status" value="${option}" ${i === 0 ? 'required' : ''}><span>${option}</span></label>`).join('')}</div>
+        </fieldset>
+        <label class="lead-field">
+          <span>${FORM.fields.volume.label}</span>
+          <select name="production_target" required><option value=""></option>${FORM.fields.volume.options.map(option => `<option>${option}</option>`).join('')}</select>
+        </label>
+        <label class="lead-field lead-message">
+          <span>${FORM.fields.message.label}<small>${FORM.fields.message.optional}</small></span>
+          <textarea name="message" placeholder="${FORM.fields.message.placeholder}" rows="3"></textarea>
+        </label>
+        <label class="lead-consent"><input type="checkbox" name="consent" required><span>${FORM.consent} <a href="${SITE.privacyUrl}" target="_blank" rel="noopener">${FORM.privacyLabel}</a></span></label>
+        <input class="lead-honeypot" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      </div>
+      <button class="btn lead-submit" type="submit">${FORM.submit}</button>
+      <p class="lead-response" aria-live="polite"></p>
+    </form>`;
+
+  $('[data-form-slot="inline"]').innerHTML = formMarkup('inline');
+  $('[data-form-slot="modal"]').innerHTML = formMarkup('modal', true);
+
+  $('.cta .eyebrow').textContent = CTA.eyebrow;
   $('.cta-title').textContent = CTA.title;
   $('.cta .lede').textContent = CTA.sub;
-
-  const [q, d] = $$('.cta-actions a');
-  q.textContent = CTA.button;
-  q.href = `mailto:${CTA.email}?subject=${encodeURIComponent('Typhoon PRO — quote request')}`;
-  d.textContent = CTA.secondary;
-  d.href = `mailto:${CTA.email}?subject=${encodeURIComponent('Typhoon PRO — demo roast')}`;
-
   $('.cta-meta').innerHTML = `
     <li><a href="mailto:${CTA.email}">${CTA.email}</a></li>
     <li><a href="tel:${CTA.phone.replace(/\s/g, '')}">${CTA.phone}</a></li>
     <li>${CTA.address}</li>`;
 
-  $('#year').textContent = new Date().getFullYear();
+  const params = new URLSearchParams(location.search);
+  const cookie = name => document.cookie.split('; ').find(x => x.startsWith(`${name}=`))?.split('=').slice(1).join('=') || '';
+  const analyticsContext = () => ({
+    utm_source: params.get('utm_source') || '', utm_medium: params.get('utm_medium') || '',
+    utm_campaign: params.get('utm_campaign') || '', utm_term: params.get('utm_term') || '',
+    gclid: params.get('gclid') || '', ga_clientid: cookie('_ga'), ym_clientid: cookie('_ym_uid'),
+    ph_distinct_id: window.posthog?.get_distinct_id?.() || '', page: location.href,
+    referrer: document.referrer, locale: navigator.language,
+  });
+
+  const modal = $('#leadModal');
+  const modalPanel = $('.lead-modal-panel', modal);
+  const modalForm = $('[data-lead-form="modal"]');
+  let lastFocus;
+
+  const setFormIntent = (form, intent = 'pricing', model = '', source = '') => {
+    const choice = FORM.intents[intent] || FORM.intents.pricing;
+    form.dataset.intent = intent;
+    form.dataset.model = model;
+    form.dataset.sourceSection = source;
+    const title = $('.lead-form-head .h3', form);
+    const submit = $('.lead-submit', form);
+    if (title) title.textContent = choice.title;
+    submit.textContent = choice.submit;
+  };
+  setFormIntent($('[data-lead-form="inline"]'), 'pricing', '', 'contact');
+
+  const closeModal = () => {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    lastFocus?.focus();
+  };
+  const openModal = trigger => {
+    lastFocus = trigger;
+    const roi = trigger.dataset.leadIntent === 'roi' ? window.__typhoonCalculator?.getState?.() : null;
+    leadContext.roi = roi || leadContext.roi;
+    setFormIntent(modalForm, trigger.dataset.leadIntent, trigger.dataset.leadModel || leadContext.model || '', trigger.dataset.sourceSection || 'page');
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    requestAnimationFrame(() => $('input[name="name"]', modalForm)?.focus());
+    track('lead_form_open', { intent: modalForm.dataset.intent, model: modalForm.dataset.model, source_section: modalForm.dataset.sourceSection });
+  };
+
+  document.addEventListener('click', e => {
+    const trigger = e.target.closest('[data-lead-intent]');
+    if (trigger) { e.preventDefault(); openModal(trigger); }
+  });
+  $('.lead-modal-close').textContent = FORM.close;
+  $('.lead-modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+  $$('[data-lead-form]').forEach(form => {
+    let startedAt = Date.now();
+    form.addEventListener('input', () => { if (!form.dataset.started) { form.dataset.started = 'true'; startedAt = Date.now(); track('lead_form_start', { placement: form.dataset.leadForm }); } }, { once: true });
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const button = $('.lead-submit', form);
+      const response = $('.lead-response', form);
+      const data = Object.fromEntries(new FormData(form));
+      const payload = {
+        ...data, ...analyticsContext(), consent: data.consent === 'on',
+        intent: form.dataset.intent || 'pricing', equipment: form.dataset.model || leadContext.model || '',
+        source: FORM.source, source_section: form.dataset.sourceSection || form.dataset.leadForm,
+        formId: `typhoon_pro_${form.dataset.leadForm}`, button_text: button.textContent,
+        quiz_status: leadContext.status || '', quiz_volume: leadContext.volume || '',
+        roi_inputs: leadContext.roi ? JSON.stringify(leadContext.roi) : '',
+        form_started_at: new Date(startedAt).toISOString(),
+        submission_id: crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      };
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = FORM.pending;
+      response.textContent = '';
+      try {
+        const sent = await fetch(FORM.endpoint, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload), keepalive: true,
+        });
+        if (!sent.ok) throw new Error(`HTTP ${sent.status}`);
+        button.textContent = FORM.success;
+        track('lead_form_submit', { intent: payload.intent, model: payload.equipment, source_section: payload.source_section });
+        setTimeout(() => location.assign(FORM.successPage), 350);
+      } catch (error) {
+        console.error('[typhoon] lead form failed', error);
+        button.disabled = false;
+        button.textContent = original;
+        response.innerHTML = `${FORM.error} <a href="mailto:${CTA.email}">${CTA.email}</a>`;
+        track('lead_form_error', { intent: payload.intent, source_section: payload.source_section });
+      }
+    });
+  });
+
+  $('.foot-grid').innerHTML = `
+    <span>© ${new Date().getFullYear()} ${FOOTER.copyright}</span>
+    <span>${FOOTER.fullRangeLabel}: ${SITE.fullRange.map(x => `<a href="${x.href}">${x.label}</a>`).join(' · ')}</span>
+    <a href="${SITE.privacyUrl}">${FOOTER.privacyLabel}</a>
+    <a href="${SITE.mainSite}">${new URL(SITE.mainSite).hostname}</a>`;
+})();
+
+/* The Three.js code and the large model files are requested only when the
+   visitor gets near the model chapters. The specifications and forms work
+   even when WebGL or the model CDN is unavailable. */
+(() => {
+  let requested = false;
+  const loadScene = () => {
+    if (requested) return;
+    requested = true;
+    import('./scene.js').catch(error => {
+      console.error('[typhoon] 3D module failed', error);
+      $$('.model-load-status').forEach(n => n.textContent = MODEL_UI.unavailable3d);
+    });
+  };
+  if (!('IntersectionObserver' in window)) return loadScene();
+  const observer = new IntersectionObserver(entries => {
+    if (!entries.some(x => x.isIntersecting)) return;
+    observer.disconnect();
+    loadScene();
+  }, { rootMargin: '140% 0px' });
+  observer.observe($('#lineup'));
 })();
 
 /* ═════════════════════════════════════════════════ SCROLL REVEALS ═══════ */
@@ -523,10 +914,10 @@ addEventListener('load', sweep);
   };
 
   const EVENTS = [
-    { t: 0,      label: 'Charge' },
-    { t: TP_T,   label: 'Turn point' },
-    { t: FC_T,   label: 'First crack' },
-    { t: DROP_T, label: 'Drop' },
+    { t: 0,      label: SOFTWARE.chart.events[0] },
+    { t: TP_T,   label: SOFTWARE.chart.events[1] },
+    { t: FC_T,   label: SOFTWARE.chart.events[2] },
+    { t: DROP_T, label: SOFTWARE.chart.events[3] },
   ];
 
   /* ---- plot geometry ----------------------------------------------------
@@ -602,9 +993,9 @@ addEventListener('load', sweep);
   label(L - 10, yP(100) + 4, '100', AXIS, 'end');
   label(L - 10, yP(0)   + 4, '0',   AXIS, 'end');
 
-  label(L - 10, T - 12, '°C',      AXIS, 'end');
-  label(R + 10, T - 12, 'RoR',  '#9d8a4e');
-  label(L - 10, T2 - 12, '%',      AXIS, 'end');
+  label(L - 10, T - 12, SOFTWARE.chart.axis.temperature, AXIS, 'end');
+  label(R + 10, T - 12, SOFTWARE.chart.axis.rateOfRise, '#9d8a4e');
+  label(L - 10, T2 - 12, SOFTWARE.chart.axis.percent, AXIS, 'end');
 
   // event markers
   const evGroup = mk('g', {});
@@ -651,9 +1042,7 @@ addEventListener('load', sweep);
   g.append(head, dot);
 
   // legend
-  const LEGEND = [['Bean', C.bean, 'bean'], ['Air', C.air, 'air'],
-                  ['RoR', C.ror, 'bean'], ['Power', C.power, 'power'],
-                  ['Fan', C.fan, 'fan']];
+  const LEGEND = SOFTWARE.chart.legend.map(item => [item.label, C[item.label.toLowerCase()] || C.ror, item.series]);
   const legend = mk('g', {});
   LEGEND.forEach(([txt, colour, key], i) => {
     const lx = L + i * 100, ly = B2 + 44;
@@ -706,7 +1095,7 @@ addEventListener('load', sweep);
      and Cooling tick past was mostly dead time — the roast is the part
      worth looking at, and the batch counter still carries the claim that
      nothing has to cool down in between. */
-  const STAGES = ['Prepare', 'Ready', 'Loading', 'Roasting', 'Unloading', 'Cooling'];
+  const STAGES = SOFTWARE.chart.stages;
   const ROASTING = 3;
 
   stageBar.innerHTML = STAGES.map(n => `<span>${n}</span>`).join('');
@@ -752,7 +1141,7 @@ addEventListener('load', sweep);
       dot.setAttribute('opacity', 1);
       dot.setAttribute('cx', x(rt)); dot.setAttribute('cy', y(beanAt(rt)));
 
-      out.stage.textContent = `Roasting ${mmss(rt)}`;
+      out.stage.textContent = `${SOFTWARE.chart.roastingLabel} ${mmss(rt)}`;
       out.bean.textContent  = `${beanAt(rt).toFixed(1)} °C`;
       out.dtr.textContent   = rt > FC_T ? dtrAt(rt) : '—';
       out.dev.textContent   = `${Math.abs(wobble(rt, 1.1)).toFixed(1)} °C`;
@@ -763,7 +1152,7 @@ addEventListener('load', sweep);
       head.setAttribute('opacity', 0);
       dot.setAttribute('opacity', 1);
       dot.setAttribute('cx', x(DROP_T)); dot.setAttribute('cy', y(beanAt(DROP_T)));
-      out.stage.textContent = `Dropped ${mmss(DROP_T)}`;
+      out.stage.textContent = `${SOFTWARE.chart.droppedLabel} ${mmss(DROP_T)}`;
       out.bean.textContent = `${beanAt(DROP_T).toFixed(1)} °C`;
       out.dtr.textContent  = dtrAt(DROP_T);
     }
@@ -783,7 +1172,7 @@ addEventListener('load', sweep);
   /* Reduced motion: show the finished roast, no loop. */
   if (reduced) {
     live.style.strokeDashoffset = '0px';
-    out.stage.textContent = `Dropped ${mmss(DROP_T)}`;
+    out.stage.textContent = `${SOFTWARE.chart.droppedLabel} ${mmss(DROP_T)}`;
     out.bean.textContent = `${beanAt(DROP_T).toFixed(1)} °C`;
     out.dtr.textContent  = dtrAt(DROP_T);
     out.dev.textContent  = '0.4 °C';

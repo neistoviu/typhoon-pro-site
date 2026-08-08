@@ -8,6 +8,53 @@
    Set `price` to a string like '€24,900' to show it, or leave the
    placeholder to keep the "on request" button. Same for every model. */
 
+export const SITE = {
+  title: 'Typhoon PRO | Electric convection coffee roasters',
+  description: 'Typhoon 2.5 PRO, 5 PRO and 10 PRO electric convection coffee roasters. Compare models, estimate running costs and request pricing.',
+  heroImageAlt: 'Typhoon 2.5 PRO, 5 PRO and 10 PRO roasters side by side',
+  logoAlt: 'Typhoon Roasters',
+  mainSite: 'https://typhoon.coffee',
+  privacyUrl: 'https://typhoon.coffee/privacy/',
+  fullRange: [
+    { label: 'Typhoon 20 kg', href: 'https://typhoon.coffee/equipment/typhoon-20kg/' },
+    { label: 'Typhoon 30 kg', href: 'https://typhoon.coffee/equipment/typhoon-30kg/' },
+  ],
+};
+
+export const NAV = {
+  primaryLabel: 'Primary navigation',
+  mobileLabel: 'Mobile navigation',
+  seriesLabel: 'PRO series',
+  menuLabel: 'Menu',
+  closeLabel: 'Close',
+  largerLabel: 'Larger roasters',
+  items: [
+    { label: 'Find yours', href: '#finder' },
+    { label: 'Machines', href: '#lineup' },
+    { label: 'Software', href: '#software' },
+    { label: 'ROI', href: '#calc' },
+    { label: 'FAQ', href: '#faq' },
+  ],
+  cta: 'Get pricing & specs',
+};
+
+export const MODEL_UI = {
+  cardsTitle: 'Three sizes. One production system.',
+  cardsSub: 'Choose by output and installation requirements. The calculator and enquiry form stay focused on these three PRO models.',
+  outputLabel: 'Output',
+  areaLabel: 'Minimum room area',
+  replacesLabel: 'Replaces',
+  batchesLabel: 'Batches',
+  fitLabel: 'Best fit',
+  viewLabel: 'View in 3D',
+  colourLabel: 'Colour',
+  colourGroupLabel: 'Colour presets',
+  priceOnRequest: 'Price on request',
+  quoteLabel: 'Get pricing & specs',
+  loading3d: 'Loading 3D preview',
+  unavailable3d: '3D preview unavailable. Specifications remain available.',
+};
+
 /* Paint.
    The .glb files ship painted RAL 1015 Light ivory with RAL 2002 Vermilion
    trim. `paint` repaints a machine at load time — the file is untouched, so a
@@ -31,7 +78,7 @@ export const MODELS = [
     price: null,               // e.g. '€24,900'
     priceNote: 'Ex-works Prague · shipping quoted separately',
     lead: 'The whole roastery in one plug.',
-    body: 'A 2.5 PRO turns a café back room into a production floor. It runs off a standard three-phase outlet — no gas line, no flue engineering, no building permit for an open flame. Fifteen kilos an hour out of six square metres.',
+    body: 'A 2.5 PRO turns a café back room into a production floor. It uses three-phase power with no gas line or open flame. Output reaches 15 kg per hour, and installation planning starts with a minimum room area of 15 m².',
     stats: [
       { v: '15',   u: 'kg / hour',   l: 'Sustained output' },
       { v: '6',    u: 'batches / h', l: 'No cooldown pause' },
@@ -87,7 +134,7 @@ export const MODELS = [
     price: null,
     priceNote: 'Ex-works Prague · shipping quoted separately',
     lead: 'Shop-roaster footprint. Wholesale output.',
-    body: 'Thirty kilos an hour from a machine that fits where a 10 kg drum used to stand — and holds the same profile on batch twenty as it did on batch one, because there is no drum mass to overheat and nothing to let cool.',
+    body: 'Thirty kilos an hour from a machine that fits where a 10 kg drum used to stand. The convection chamber has no drum mass to overheat, so production can continue without a between-batch cooldown protocol.',
     stats: [
       { v: '30',   u: 'kg / hour',   l: 'Sustained output' },
       { v: '6',    u: 'batches / h', l: 'No cooldown pause' },
@@ -143,7 +190,7 @@ export const MODELS = [
     price: null,
     priceNote: 'Ex-works Prague · shipping quoted separately',
     lead: 'Sixty kilos an hour, one operator.',
-    body: 'The largest PRO. Automatic loading and unloading, profile transfer included, and enough heater reserve that rate-of-rise answers faster than any gas burner can. One person runs a shift that used to take two.',
+    body: 'The largest PRO combines 60 kg per hour with automatic loading and unloading. Profile transfer is included, and the repeat modes handle the recorded settings or temperature curve while one operator monitors production.',
     stats: [
       { v: '60',   u: 'kg / hour',   l: 'Sustained output' },
       { v: '6',    u: 'batches / h', l: 'No cooldown pause' },
@@ -197,11 +244,12 @@ export const HERO = {
   eyebrow: 'The PRO series',
   /* Four short lines on purpose: the machines start about a third of the
      way across the hero image, and anything wider runs into them. */
-  title: ['The coffee roaster', 'for defect-free', 'roasting, 2× faster', 'than drum roasters.'],
-  sub: 'Three fully electric, 100% convection roasters. Six to seven batches an hour with no cooldown between them — and software that repeats the profile so the result stops depending on who is on shift.',
-  cta: 'Talk to us',
+  title: ['Double your output.', 'Keep the roast', 'batch after batch.'],
+  sub: 'Three fully electric, 100% convection roasters. Run up to six batches per hour without a cooldown pause, then use the software to repeat the profile across shifts.',
+  cta: 'Get pricing & specs',
   ctaSecondary: 'See the machines',
   scrollHint: 'Scroll',
+  badges: ['100% convection', 'No gas line', '≈0.3 kWh / kg', '24-month warranty'],
 };
 
 /* --- The three claims under the hero ------------------------------------ */
@@ -262,8 +310,7 @@ export const QUIZ = {
     name: 'Typhoon 20 or 30 kg',
     lead: 'More than the PRO range covers.',
     body: 'At that volume you are past what a 10 PRO does in a single shift. The 20 and 30 kg machines live on the main site — same technology, same software, bigger chamber.',
-    cta: 'See the full range',
-    href: 'https://typhoon.coffee',
+    links: SITE.fullRange,
   },
   cta: 'Get a quote for this machine',
   again: 'Start over',
@@ -275,6 +322,35 @@ export const SOFTWARE = {
   eyebrow: 'Typhoon PRO software',
   title: 'The profile is the product.',
   sub: 'Every PRO ships with our own roast-control software on a 13-inch touchscreen. It records what a good roast did, then does it again — replaying the settings, or chasing the curve.',
+
+  repeat: {
+    title: 'Roast it once. The machine keeps it.',
+    body: 'Coffee goes in and the operator presses start. The machine then reproduces the reference roast. Choose whether it follows the recorded settings or the bean-temperature curve.',
+    readout: [
+      ['batch', 'Batch'],
+      ['stage', 'Stage'],
+      ['bean', 'Bean'],
+      ['dtr', 'DTR'],
+      ['dev', 'Deviation'],
+    ],
+    initial: { batch: '1', stage: 'Prepare', bean: '—', dtr: '—', dev: '—' },
+    note: 'The ghost line is the reference profile. With no drum mass to cool between batches, the machine can start the next roast without a cooldown protocol.',
+  },
+
+  chart: {
+    events: ['Charge', 'Turn point', 'First crack', 'Drop'],
+    axis: { temperature: '°C', rateOfRise: 'RoR', percent: '%' },
+    legend: [
+      { label: 'Bean', series: 'bean' },
+      { label: 'Air', series: 'air' },
+      { label: 'RoR', series: 'bean' },
+      { label: 'Power', series: 'power' },
+      { label: 'Fan', series: 'fan' },
+    ],
+    stages: ['Prepare', 'Ready', 'Loading', 'Roasting', 'Unloading', 'Cooling'],
+    roastingLabel: 'Roasting',
+    droppedLabel: 'Dropped',
+  },
 
   /* the two auto-repeat modes, shown as switchable tabs on the animation */
   modes: [
@@ -289,7 +365,7 @@ export const SOFTWARE = {
       key: 'temp',
       name: 'By temperature',
       short: 'Chases the recorded bean-temperature curve.',
-      long: 'The target is the curve, not the settings. The controller trims power and airflow live to keep bean temperature on the reference line — so a colder room or a wetter lot does not move the roast.',
+      long: 'The target is the curve, not the settings. The controller trims power and airflow live to keep bean temperature near the reference line and compensate for differences such as a colder room or a wetter lot.',
       highlight: ['bean', 'air'],
     },
   ],
@@ -334,13 +410,14 @@ export const PRESETS = [
 
 export const CLIENTS = {
   eyebrow: 'Our clients',
-  title: '1000+ roasteries switched to Typhoon.',
-  sub: 'Cafés, wholesale roasteries and distributors across four continents run the PRO series every day. We will put you in touch with one near you.',
+  title: '1000+ Typhoon roasters installed worldwide.',
+  sub: 'The owners below include cafés, wholesale roasteries, ambassadors and distributors across four continents. We can put you in touch with one near you.',
   cta: 'Connect me with a client nearby',
-  ctaHref: 'https://typhoon.coffee/clients',
+  ctaIntent: 'client_reference',
+  filters: ['All', '2.5 kg', '5 kg', '10 kg', 'Ambassador', 'Distributor'],
   items: [
-    { key: 'alpha',     name: 'Alpha Coffee Equipement',  country: 'United States', tags: ['Distributor', '10 PRO'] },
-    { key: 'angry',     name: 'The Angry Roaster',        country: 'Canada',        tags: ['Distributor', '10 PRO'] },
+    { key: 'alpha',     name: 'Alpha Coffee Equipement',  country: 'United States', tags: ['Distributor', '10 kg'] },
+    { key: 'angry',     name: 'The Angry Roaster',        country: 'Canada',        tags: ['Distributor', '10 kg'] },
     { key: 'velvet',    name: 'Velvet Coffee',            country: 'Belgium',       tags: ['Ambassador', '10 kg'] },
     { key: 'sump',      name: 'Sump Coffee',              country: 'United States', tags: ['10 kg'] },
     { key: 'onoma',     name: 'Onoma Coffee',             country: 'Germany',       tags: ['Ambassador', '5 kg'] },
@@ -356,26 +433,94 @@ export const CLIENTS = {
    `typhoon-roi-calculator/`, copied to /calculator and embedded in a frame
    so its styling stays exactly as built. */
 
-export const CALC = {
+export const CALCULATOR = {
   eyebrow: 'Running cost',
-  title: 'What it saves you every month.',
-  sub: 'Pick a machine and your monthly volume. The figure compares a Typhoon against a drum setup roasting the same output — labour, energy and the coffee you stop throwing away.',
-  src: 'calculator/index.html',
+  titleBefore: 'How could Typhoon save you ',
+  titleAfter: '?',
+  sub: 'Choose a PRO model and monthly output. The estimate compares labour, energy and defect assumptions against a same-size drum setup.',
+  setupTitle: 'Your Typhoon setup',
+  machineLabel: 'Machine',
+  volumeLabel: 'Roasted per month',
+  currencyLabel: 'Currency and unit',
+  currencies: [
+    { key: 'EUR', label: 'EUR · kg' },
+    { key: 'USD', label: 'USD · lb' },
+  ],
+  methodOpen: 'See assumptions and formulas',
+  methodClose: 'Close',
+  totalLabel: 'Estimated monthly saving',
+  totalVs: 'vs. a same-size drum setup',
+  breakdown: [
+    { key: 'Labor', label: 'Labour' },
+    { key: 'Energy', label: 'Energy' },
+    { key: 'Defect', label: 'Coffee defects' },
+  ],
+  cta: 'Discuss this estimate',
+  disclaimer: 'Illustrative estimate, not a guarantee. Open the assumptions to see exactly how it is calculated.',
+  batchOptionsKg: [2.5, 5, 10],
+  initial: { currency: 'EUR', batchKg: 10, monthlyKg: 6500 },
+  assumptions: {
+    kgToLb: 2.20462,
+    weeksPerMonth: 4.33,
+    typhoonBatchesPerHour: 6,
+    workHoursPerDay: 8,
+    workDaysPerWeek: 5,
+    drumBatchesPerHour: 3.5,
+    drumLoad: 0.90,
+    typhoonEnergyKwhKg: 0.30,
+    drumEnergyKwhKg: 0.75,
+    typhoonDefectRate: 0.01,
+    drumDefectRate: 0.06,
+    costs: {
+      EUR: { energy: 0.25, labor: 15, green: 10 },
+      USD: { energy: 0.13, labor: 18, green: 5 },
+    },
+  },
+  method: {
+    title: 'How this estimate is calculated',
+    intro: 'The estimate uses your chosen machine and monthly output. It caps volume at one 40-hour production week for that model.',
+    sections: [
+      { key: 'volume', title: '1 · Monthly volume', body: 'Your target output, capped at what one Typhoon can produce in a 40-hour week.' },
+      { key: 'drumSetup', title: '2 · Comparable drum setup', body: 'A same-size drum runs fewer batches per hour and is modelled at 90% batch loading.' },
+      { key: 'labor', title: '3 · Labour', body: 'Drum roasting hours minus Typhoon roasting hours, multiplied by the hourly labour cost.' },
+      { key: 'energy', title: '4 · Energy', body: 'The model uses 0.30 kWh/kg for Typhoon and 0.75 kWh/kg for the comparison drum.' },
+      { key: 'defect', title: '5 · Coffee defects', body: 'The estimate compares a 1% Typhoon defect assumption with a 6% drum assumption. Both figures are shown so the result can be judged as an estimate rather than a guarantee.' },
+      { key: 'costs', title: 'Assumed costs', body: 'These default inputs keep the first calculation simple. They are visible here so the result can be checked.' },
+    ],
+    labels: {
+      currentSetup: 'Current setup',
+      maxOutput: 'Maximum for this Typhoon in one 40-hour week',
+      comparable: 'Comparable same-size drum roasters',
+      equivalent: 'Equivalent single drum batch',
+      electricity: 'Electricity',
+      labour: 'Labour',
+      greenCoffee: 'Green coffee',
+      currentSaving: 'Current estimated saving',
+    },
+    templates: {
+      intro: '{currentSetup}: {machine} Typhoon and {monthly}/month. {maxOutput}: {maximum}/month.',
+      volume: '{monthly}/month = {weekly}/week',
+      drumSetup: '{comparable}: {count}. {equivalent}: ~{batch}.',
+      labour: 'Typhoon {typhoonHours} h/month vs same-size drum {drumHours} h/month = {savedHours} saved hours × {hourlyCost}/hour = {saving}',
+      energy: '{volume} kg/month × {difference} kWh/kg × {energyCost}/kWh = {saving}',
+      defect: '{volume} kg/month × {difference}% × {coffeeCost}/kg = {saving}',
+    },
+  },
 };
 
 /* --- Comparison against a drum ------------------------------------------- */
 
 export const COMPARE = {
-  title: 'Typhoon roasts 2× faster than a drum, and holds it.',
+  title: 'More usable output from the same shift.',
   rows: [
     ['Roast time',            'up to 14 min',              'up to 7 min'],
     ['Batches',               '3.5 / hour',                '6 – 7 / hour'],
     ['Heating method',        '80% hot metal (conduction)','100% hot air (convection)'],
-    ['Roasting defects',      'inevitable',                'no contact surface'],
+    ['Drum-contact defects',  'contact risk remains',      'no hot metal contact'],
     ['Between-batch protocol','5 – 10 min',                'not needed'],
     ['Noise level',           'loud',                      '70.5 dBA — quiet'],
     ['Energy source',         'gas',                       'electric only'],
-    ['Payback',               '12 months at 50% load',     '3 months at 50% load'],
+    ['Running-cost estimate', 'manual calculation',        'interactive estimate below'],
   ],
   headA: 'Drum roaster',
   headB: 'Typhoon PRO',
@@ -415,12 +560,27 @@ export const TRY = {
   ],
 };
 
-export const SERVICE = [
-  { t: '24 months',        d: 'Warranty, with a spare-parts kit — heaters, sensors, glass, gaskets, actuators — in the crate.' },
-  { t: 'One hour',         d: 'Target response time on a service call during working hours.' },
-  { t: 'Remote first',     d: 'Most issues are diagnosed and fixed over the connection. No engineer visit, no downtime.' },
-  { t: 'Training included', d: 'Online and on-site. Your profiles are built with our roaster during commissioning, then the machine repeats them.' },
-];
+export const SERVICE = {
+  eyebrow: 'Service and onboarding',
+  title: 'Your production plan starts before delivery.',
+  sub: 'The machine, software, installation preparation, training and support are handled as one production transition.',
+  items: [
+    { t: '24-month warranty', d: 'Remote diagnostics and software updates are included.' },
+    { t: 'Spare parts on site', d: 'Heaters, sensors, chamber glass, gaskets and actuators ship with the roaster.' },
+    { t: 'Site review', d: 'Our engineers review the floor plan, ventilation and electrical preparation before installation.' },
+    { t: 'Remote diagnostics', d: 'Most cases begin online so the team can read logs and diagnose the machine without waiting for a visit.' },
+    { t: 'On-site when required', d: 'An engineer visit remains available when the case cannot be completed remotely.' },
+    { t: 'Training included', d: 'We build the first profiles with your team during commissioning and prepare operators for daily production.' },
+  ],
+};
+
+export const CUSTOMIZATION = {
+  eyebrow: 'Colours and configuration',
+  title: 'Build it around your space and brand.',
+  sub: 'Choose any RAL colour for the body and trim. Add loading, destoning, exhaust filtration or blending equipment to match the production flow.',
+  cta: 'Discuss colours and equipment',
+  images: ['colour-1.webp', 'colour-2.webp', 'colour-3.webp', 'colour-4.webp', 'colour-5.webp', 'colour-6.webp', 'colour-7.webp', 'colour-8.webp', 'colour-9.webp'],
+};
 
 /* --- FAQ -----------------------------------------------------------------
    "Pricing & payment" is the wording from typhoon.coffee verbatim. The other
@@ -497,8 +657,8 @@ export const FAQ = {
          'Heaters, sensors, chamber glasses, gaskets and actuators — the parts that would otherwise mean waiting on a delivery.'],
         ['What maintenance does it need?',
          'No burner to calibrate and no gas valves. The chamber opens in one second without tools, there are few moving parts, and most service tasks are minutes rather than hours.'],
-        ['How fast do you respond to a problem?',
-         'We aim to answer a service call within the hour during working hours. Most issues are diagnosed and fixed over the connection without an engineer visit.'],
+        ['How does remote support work?',
+         'Support begins with a remote connection so the team can read logs and diagnose the machine. Most cases can be handled without an engineer visit; an on-site visit remains available when required.'],
       ],
     },
     {
@@ -543,23 +703,73 @@ export const FAQ = {
    already sorted. */
 
 export const NEXT = {
-  body: 'Typhoon roasters are installed at 1000+ successful roasteries worldwide. We guide you through starting a business that typically returns the initial investment within 5 months at just 30% of roaster capacity. We provide a complete online roasting course. Installation requires only 6 m² of space and a 380 V outlet.',
+  body: 'Typhoon roasters are installed at 1000+ roasteries worldwide. Minimum room area is 15 m² for the 2.5 PRO, 25 m² for the 5 PRO and 40 m² for the 10 PRO. All three models require 380–400 V three-phase power.',
   actions: [
-    { t: 'Schedule a demo Zoom call',      subject: 'Typhoon PRO — demo call',      primary: true },
-    { t: 'Just send me the price',          subject: 'Typhoon PRO — price list' },
-    { t: 'Order samples roasted on Typhoon',subject: 'Typhoon PRO — coffee samples' },
+    { t: 'Schedule a demo call', intent: 'demo', primary: true },
+    { t: 'Send me pricing', intent: 'pricing' },
+    { t: 'Order roasted samples', intent: 'samples' },
   ],
 };
 
 /* --- Closing ------------------------------------------------------------- */
 
 export const CTA = {
-  title: 'Which one fits your volume?',
-  sub: 'Tell us what you roast in a month and we will tell you which machine — and what it costs to run against what you have now.',
-  button: 'Request a quote',
-  secondary: 'Book a demo roast',
+  eyebrow: 'Next step',
+  title: 'Get the right model, site requirements and price.',
+  sub: 'Tell us where you are now and how much coffee you plan to roast. We will reply with the best-fit PRO model and the next practical step.',
   email: 'ds-sales@typhoon-roaster.com',
   phone: '+420 774 501 511',
   address: 'Vršovická 627/55, 101 00 Prague 10, Czech Republic',
   mainSite: 'https://typhoon.coffee',
+};
+
+export const FORM = {
+  endpoint: '/api/lead',
+  source: 'Typhoon PRO local site',
+  title: 'Tell us about your roastery',
+  sub: 'This takes about a minute. A Typhoon specialist will use the details to recommend the right model and preparation path.',
+  fields: {
+    name: { label: 'Name', placeholder: 'Your name' },
+    email: { label: 'Work email', placeholder: 'name@company.com' },
+    phone: { label: 'Phone', placeholder: '+1 555 123 4567' },
+    status: {
+      label: 'Current situation',
+      options: ['New business', 'Upgrading my roastery', 'Start roasting in my shop', 'Hobby roaster', 'Other'],
+    },
+    volume: {
+      label: 'Planned weekly output',
+      options: ['I don’t know yet', 'Up to 100 kg', '100–600 kg', '600–1,200 kg', '1,200–2,400 kg', 'More than 2,400 kg'],
+    },
+    message: { label: 'Anything we should know?', placeholder: 'Current roaster, target date, country or questions', optional: 'Optional' },
+  },
+  consent: 'I agree that Typhoon may use these details to respond to my request.',
+  privacyLabel: 'Privacy policy',
+  submit: 'Send request',
+  pending: 'Sending…',
+  success: 'Request sent',
+  error: 'The form could not be sent. Please try again or email us directly.',
+  close: 'Close',
+  intents: {
+    pricing: { title: 'Get pricing and specifications', submit: 'Request pricing & specs' },
+    demo: { title: 'Book a live roasting session', submit: 'Request a demo' },
+    samples: { title: 'Order coffee samples', submit: 'Request samples' },
+    showroom: { title: 'Visit the Prague showroom', submit: 'Request a visit' },
+    client_reference: { title: 'Speak with a Typhoon owner nearby', submit: 'Request an introduction' },
+    colors: { title: 'Discuss colours and equipment', submit: 'Request configuration help' },
+    roi: { title: 'Discuss your running-cost estimate', submit: 'Send my estimate' },
+  },
+  successPage: '/thank-you/',
+  thankYou: {
+    eyebrow: 'Request received',
+    title: 'Thank you. We have your details.',
+    body: 'A Typhoon specialist will review the request and contact you using the details you provided.',
+    primary: 'Return to Typhoon PRO',
+    secondary: 'Explore the full range',
+  },
+};
+
+export const FOOTER = {
+  copyright: 'Typhoon Roasters',
+  fullRangeLabel: 'Full range',
+  privacyLabel: 'Privacy',
 };

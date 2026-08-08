@@ -7,9 +7,10 @@ Paste this whole file as your opening message, or point the agent at it.
 ## What this is
 
 A standalone product site for **three coffee roasters only** — Typhoon 2.5 PRO,
-5 PRO and 10 PRO. Not the company site: no 20 kg, no 30 kg, no about page.
-Those live on [typhoon.coffee](https://typhoon.coffee), which this page links
-out to whenever a visitor turns out to need them.
+5 PRO and 10 PRO. The 20 and 30 kg machines have no local product sections;
+they remain outbound links to their own pages on
+[typhoon.coffee](https://typhoon.coffee) in the menu, footer and out-of-range
+finder result.
 
 - **Folder:** `/Users/nikolas/Desktop/typhoon claude/typhoon-pro-site`
 - **Repo:** https://github.com/neistoviu/typhoon-pro-site (branch `main`)
@@ -25,7 +26,7 @@ it that way unless there is a reason that survives being said out loud.
 Everything from `package.json` down — `app/`, `build/`, `worker/`,
 `next.config.ts`, `scripts/prepare-static.mjs`, `_headers`, `.openai/` — is a
 deployment wrapper added separately. It copies `css/ img/ js/ models/
-index.html` into `public/` and modifies none of them. The site does not depend
+index.html` and `thank-you.html` into `public/` and modifies none of them. The site does not depend
 on it.
 
 ## Running it
@@ -56,6 +57,8 @@ If you add a section, add its copy to `content.js`, its markup skeleton to
 | `js/scene.js` | Three.js — loads the models, moves them with the scroll |
 | `js/ui.js` | Builds the page from `content.js`; reveals, disclosures, the roast animation |
 | `js/calculator.js` | Savings calculator — arithmetic ported verbatim from `typhoon-roi-calculator/` |
+| `worker/index.ts` | Static assets plus the same-origin `/api/lead` form relay |
+| `thank-you.html` | Form success route, populated from `content.js` |
 | `css/style.css` | All styling |
 | `models/*.glb` | The three machines, ~1 MB each |
 | `img/` | Hero crops, client photos, colour renders, try-it photos |
@@ -92,9 +95,9 @@ the short list.
 
 - **Prices are `null`** on all three machines, so each shows "Price on
   request". There is no verified public PRO price list to publish from.
-- **A factual conflict to resolve:** `NEXT.body` says installation needs "only
-  6 m² of space" (the main site's claim) while the spec tables and FAQ say a
-  minimum room area of 15 / 25 / 40 m². Both are on the page right now.
+- **Room areas are resolved:** use 15 / 25 / 40 m² for the 2.5 / 5 / 10 PRO.
+- **Form delivery depends on one secret:** production hosting must provide
+  `LEAD_WEBHOOK_URL`. Never put the webhook URL in `content.js` or commit it.
 - **The FAQ mixes two sources.** "Pricing & payment" is typhoon.coffee's
   wording verbatim; the other seven were written from `company-knowledge/`
   because the main site keeps them behind tabs that only fetch on a real click.

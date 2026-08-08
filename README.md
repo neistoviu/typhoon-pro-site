@@ -1,9 +1,9 @@
 # Typhoon PRO — product site
 
 A standalone page for the three PRO machines only: **2.5 PRO, 5 PRO, 10 PRO**.
-No 20 kg, no 30 kg, no company pages — those live on
-[typhoon.coffee](https://typhoon.coffee). This one exists to show the machines
-and the software.
+The 20 and 30 kg machines have no local product sections. They remain outbound
+links to their own pages on [typhoon.coffee](https://typhoon.coffee) in the
+menu, footer and out-of-range finder result.
 
 Static HTML, CSS and JavaScript on Three.js. No build step, no framework, no
 bundler — the same shape as `typhoon-configurator/`.
@@ -24,6 +24,8 @@ bundler — the same shape as `typhoon-configurator/`.
 | `img/try/*.webp` | Photographs for the three "before you commit" cards |
 | `img/clients/*.webp` | Client logos and photographs, pulled from typhoon.coffee |
 | `js/calculator.js` | Savings calculator — arithmetic ported from `typhoon-roi-calculator/` |
+| `worker/index.ts` | Static assets plus the same-origin `/api/lead` form relay |
+| `thank-you.html` | Form success route, populated from `js/content.js` |
 | `img/logo.svg` | Wordmark, ink-coloured, inverted by CSS on the dark section |
 
 **To change wording, numbers or prices, edit `js/content.js`.** Nothing else
@@ -32,7 +34,7 @@ needs touching for a content change.
 Everything from `package.json` down — `app/`, `build/`, `worker/`,
 `next.config.ts`, `scripts/prepare-static.mjs`, `_headers`, `.openai/` — is a
 deployment wrapper added separately, not part of the site. It copies
-`css/ img/ js/ models/ index.html` into `public/` and changes none of them.
+`css/ img/ js/ models/ index.html thank-you.html` into `public/` and changes none of them.
 
 ---
 
@@ -42,15 +44,16 @@ deployment wrapper added separately, not part of the site. It copies
 |---------|-----|---------|
 | Hero — photograph, headline, badges | `#hero` | `HERO` |
 | Model finder — two questions, one recommendation, three ways in | `#finder` | `QUIZ` + `NEXT` |
+| Client references and model filters | `#clients` | `CLIENTS` |
+| Comparison against a drum | `#compare` | `COMPARE` |
+| Savings calculator | `#calc` | `CALCULATOR` + `js/calculator.js` |
 | Three machine chapters — 3D, specs, colour presets | `#lineup` | `MODELS` + `PRESETS` |
 | Software — the auto-repeat explainer and feature grid | `#software` | `SOFTWARE` |
-| Comparison against a drum | `#compare` | `COMPARE` |
-| Clients | `#clients` | `CLIENTS` |
+| Service and onboarding | `#service` | `SERVICE` |
 | Before you commit — samples, online session, showroom | `#try` | `TRY` |
-| Savings calculator | `#calc` | `CALC` + `js/calculator.js` |
-| Service | `#service` | `SERVICE` |
+| Colours and equipment | `#colours` | `CUSTOMIZATION` |
 | FAQ | `#faq` | `FAQ` |
-| Contact | `#contact` | `CTA` |
+| Contact and real lead form | `#contact` | `CTA` + `FORM` |
 
 ---
 
@@ -108,7 +111,9 @@ old one.
 
 ## How the scroll choreography works
 
-One `<canvas>`, fixed, behind the whole page. Three models, loaded once.
+One `<canvas>`, fixed, behind the whole page. Each model is loaded once, only
+when its chapter is getting close to the viewport. This keeps the initial page
+and phone download light without changing the choreography.
 
 **Each machine belongs to one chapter and never leaves it.** There is no
 opening line-up and no carousel: a machine rises into view with its section,
@@ -336,11 +341,9 @@ blue for the money, hairline rules instead of cards and shadows. No iframe: it
 is part of the page, so its type scale matches its neighbours.
 
 Sanity check after any edit — at the defaults (10 kg, 6,500 kg/month, EUR) it
-must read **€5,684** total, **€1,702** labour, **€731** energy, **€3,250**
-defects. Those are the original's numbers.
-
-**If the calculator changes upstream**, port the logic across again rather than
-editing both: `typhoon-roi-calculator/` stays the source of truth for the maths.
+must read **€5,451** total, **€1,470** labour, **€731** energy and **€3,250**
+defects. The conservative public estimate uses six Typhoon batches per hour.
+All editable assumptions and labels live under `CALCULATOR` in `content.js`.
 
 ---
 
@@ -350,13 +353,12 @@ editing both: `typhoon-roi-calculator/` stays the source of truth for the maths.
   request". There is no verified public PRO price list to publish from.
 - **`QUIZ.bigger`** hands 4,500 kg/week and up to typhoon.coffee. This page
   covers the PRO range only; 20 and 30 kg live on the main site.
-- **`COLOURS.ctaHref`** and the configurator link point at typhoon.coffee until
-  the configurator has a URL of its own.
+- **Lead delivery needs one hosting secret.** Production must provide
+  `LEAD_WEBHOOK_URL`. Never hard-code or commit the webhook URL.
 - **The FAQ mixes two sources.** "Pricing & payment" is typhoon.coffee's
   wording verbatim; the other seven categories were written from
   `company-knowledge/` because the main site keeps them behind Framer tabs that
   only fetch on a real click. If exact parity matters, paste the site's wording
   over the entry in `FAQ.groups`.
-- **One factual conflict to resolve:** `NEXT.body` says installation needs
-  "only 6 m² of space" (the main site's claim) while the spec tables and FAQ
-  say a minimum room area of 15 / 25 / 40 m². Both are currently on the page.
+- **Room areas are resolved:** the site consistently uses 15 / 25 / 40 m² for
+  the 2.5 / 5 / 10 PRO.

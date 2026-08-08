@@ -13,12 +13,9 @@ import * as THREE from 'three';
 import { GLTFLoader }    from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader }   from 'three/addons/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { MODELS, FRONT_DEG } from './content.js';
+import { MODELS, MODEL_UI, FRONT_DEG } from './content.js';
 
 const canvas  = document.getElementById('stage');
-const boot    = document.getElementById('boot');
-const bootBar = boot.querySelector('.boot-bar i');
-const bootPct = boot.querySelector('.boot-pct span');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const TAU = Math.PI * 2;
@@ -139,21 +136,17 @@ function repaint(groups, paint) {
 }
 
 const rigs = [];                       // one per model, index-aligned to MODELS
+const pendingPaint = new Map();
 
 /* The preset buttons in each chapter ask for a repaint; the scene owns
    knowing which materials are the paint. Decoupled through an event so
    neither module has to import the other. */
 document.addEventListener('typhoon:paint', e => {
   const r = rigs.find(x => x && x.key === e.detail.model);
-  if (r) repaint(r.groups, { body: e.detail.body, accent: e.detail.accent });
+  const paint = { body: e.detail.body, accent: e.detail.accent };
+  if (r) repaint(r.groups, paint);
+  else pendingPaint.set(e.detail.model, paint);
 });
-
-const progress = MODELS.map(() => 0);
-const paintBoot = () => {
-  const pct = Math.round(progress.reduce((a, b) => a + b, 0) / MODELS.length * 100);
-  bootBar.style.width = pct + '%';
-  bootPct.textContent = pct;
-};
 
 function load(m, i) {
   return new Promise((resolve, reject) => {
@@ -176,6 +169,7 @@ function load(m, i) {
 
       const groups = findPaint(inner);
       repaint(groups, m.paint);
+      repaint(groups, pendingPaint.get(m.key));
 
       const rig = new THREE.Group();          // scroll drives this
       const spin = new THREE.Group();         // holds the model + its shadow
@@ -198,12 +192,9 @@ function load(m, i) {
         x: 0, y: 0, s: 0.001, rot: FRONT,
       };
 
-      progress[i] = 1; paintBoot();
       resolve();
     },
-    ev => {
-      if (ev.lengthComputable) { progress[i] = ev.loaded / ev.total; paintBoot(); }
-    },
+    undefined,
     reject);
   });
 }
@@ -363,7 +354,7 @@ function layout(dt) {
 
 /* ══════════════════════════════════════════════════════════ loop ═══════ */
 
-let last = 0, running = false, spinClock = 0;
+let last = 0, running = true, spinClock = 0;
 
 /* Nothing below the last chapter shows the canvas, so nothing below it needs
    to be drawn. */
@@ -380,7 +371,7 @@ function tick(now) {
 
   if (!running) return;
   if (!onScreen()) { canvas.classList.remove('on'); return; }
-  canvas.classList.add('on');
+  canvas.classList.toggle('on', rigs.some(Boolean));
 
   layout(dt);
   renderer.render(scene, camera);
@@ -389,40 +380,51 @@ function tick(now) {
 /* ══════════════════════════════════════════════════════════ start ══════ */
 
 resize();
+last = performance.now();
+requestAnimationFrame(tick);
 
-Promise.all(MODELS.map(load))
-  .then(() => {
-    /* One warm-up frame compiles the shaders before anything is visible —
-       otherwise the first scroll stutters while the GPU catches up. */
-    rigs.forEach(r => { r.rig.visible = true; });
+const loading = new Set();
+const loadOne = async i => {
+  if (loading.has(i) || rigs[i]) return;
+  loading.add(i);
+  const status = chapterEls[i]?.querySelector('.model-load-status');
+  if (status) status.textContent = MODEL_UI.loading3d;
+  try {
+    await load(MODELS[i], i);
+    resize();
     layout(0.016);
+    rigs[i].rig.visible = true;
     renderer.compile(scene, camera);
     renderer.render(scene, camera);
-
-    running = true;
-    last = performance.now();
-    requestAnimationFrame(tick);
-
-    /* Handle for poking at the scene from the console while tuning.
-       `setFront(deg)` is the one that gets used: dialling the opening pose in
-       live beats editing a file and reloading for every guess. Whatever number
-       looks right goes into FRONT_DEG in content.js to make it permanent. */
-    window.__typhoon = {
-      scene, camera, renderer, rigs, view, choreograph,
-      setFront(deg) {
-        FRONT = deg * Math.PI / 180;
-        rigs.forEach(r => { if (r) r.rot = FRONT; });
-        return `FRONT_DEG = ${deg}`;
-      },
-    };
-
-    boot.classList.add('done');
+    rigs[i].rig.visible = false;
+    if (status) status.hidden = true;
     canvas.classList.add('on');
-    setTimeout(() => boot.remove(), 800);
-  })
-  .catch(err => {
-    console.error('[typhoon] model load failed:', err);
-    /* The page is still a page without the 3D. Never leave the boot screen up. */
-    boot.classList.add('done');
-    setTimeout(() => boot.remove(), 800);
-  });
+  } catch (error) {
+    console.error(`[typhoon] ${MODELS[i].key} model load failed`, error);
+    if (status) status.textContent = MODEL_UI.unavailable3d;
+  }
+};
+
+if ('IntersectionObserver' in window) {
+  const modelObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const i = chapterEls.indexOf(entry.target);
+      observer.unobserve(entry.target);
+      loadOne(i);
+    });
+  }, { rootMargin: '75% 0px' });
+  chapterEls.forEach(chapter => modelObserver.observe(chapter));
+} else {
+  MODELS.forEach((_, i) => loadOne(i));
+}
+
+/* Console handle for visual tuning and diagnostics. */
+window.__typhoon = {
+  scene, camera, renderer, rigs, view, choreograph, loadModel: loadOne,
+  setFront(deg) {
+    FRONT = deg * Math.PI / 180;
+    rigs.forEach(r => { if (r) r.rot = FRONT; });
+    return `FRONT_DEG = ${deg}`;
+  },
+};
