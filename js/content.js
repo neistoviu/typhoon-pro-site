@@ -57,6 +57,7 @@ export const MODEL_UI = {
   exploreLabel: 'I’m just exploring, let’s dive in',
   bestFitLabel: 'Best fit',
   installationLabel: 'Installation at a glance',
+  fitSpecLabels: ['Batch size', 'Minimum room area'],
   playVideoLabel: 'Play {model} video',
   watchOnYouTubeLabel: 'Open on YouTube',
   videoLoadNote: 'YouTube loads only after you press play.',

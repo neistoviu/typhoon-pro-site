@@ -227,15 +227,12 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
       ${tab.label}
     </button>`).join('');
 
-  /* The compact setup view reuses rows from the full specification table.
-     Their labels and values still come from content.js, with no duplicate
-     editable numbers hidden in the renderer. */
-  const fitRows = [
-    m.specs[0].rows[0],
-    m.specs[2].rows[1],
-    m.specs[1].rows[3],
-    m.specs[2].rows.at(-1),
-  ];
+  /* The compact setup view reuses only the spec rows selected in content.js,
+     so its editable labels and values are never duplicated in the renderer. */
+  const modelSpecRows = m.specs.flatMap(group => group.rows);
+  const fitRows = MODEL_UI.fitSpecLabels
+    .map(label => modelSpecRows.find(([rowLabel]) => rowLabel === label))
+    .filter(Boolean);
   const playVideoLabel = MODEL_UI.playVideoLabel.replace('{model}', m.name);
 
   /* Which preset a machine opens on: whichever one matches the paint it was

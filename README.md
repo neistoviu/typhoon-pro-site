@@ -206,6 +206,9 @@ are easy to undo by accident:
   from it inherits every one — the page glides while the machine stutters. On
   desktop the chapter is pinned, the machine only turns, and scroll is a fine
   clock for that; on a phone it is not.
+- **The comparison does not scroll sideways.** On phones each characteristic
+  spans the row, with the Drum and Typhoon values in two columns underneath.
+  The semantic table stays intact; CSS only changes its visual layout.
 
 The viewport is measured from **the canvas**, not from `innerWidth`, and
 watched with a `ResizeObserver` — same box `getBoundingClientRect()` reports

@@ -95,6 +95,9 @@ the short list.
    opens the lead form with that model selected; the underlined button opens
    the same model's technical specifications. Each model also has a lazy-loaded
    Video view. Leaving it must unload the YouTube player so hidden audio stops.
+10. **The comparison table must not scroll sideways on phones.** Its mobile
+    layout puts the characteristic across the row and the Drum / Typhoon values
+    in two columns underneath. Do not restore a fixed table width there.
 
 ## Open items
 
