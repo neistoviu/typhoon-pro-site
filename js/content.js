@@ -49,6 +49,7 @@ export const MODEL_UI = {
     { key: 'overview', label: 'Overview' },
     { key: 'specs', label: 'Tech specs' },
     { key: 'fit', label: 'Fit & setup' },
+    { key: 'video', label: 'Video' },
   ],
   previousViewLabel: 'Previous model detail',
   nextViewLabel: 'Next model detail',
@@ -56,6 +57,9 @@ export const MODEL_UI = {
   exploreLabel: 'I’m just exploring, let’s dive in',
   bestFitLabel: 'Best fit',
   installationLabel: 'Installation at a glance',
+  playVideoLabel: 'Play {model} video',
+  watchOnYouTubeLabel: 'Open on YouTube',
+  videoLoadNote: 'YouTube loads only after you press play.',
   priceOnRequest: 'Price on request',
   quoteLabel: 'Get pricing & specs',
   loading3d: 'Loading 3D preview',
@@ -93,6 +97,12 @@ export const MODELS = [
       { v: '310',  u: 'kg',          l: 'Machine weight' },
     ],
     forWhom: 'Cafés roasting their own, and first-time roasters who need output before they need scale.',
+    video: {
+      id: 'XEUzyu54ndw',
+      url: 'https://youtu.be/XEUzyu54ndw',
+      title: 'Typhoon 2.5 roaster in operation',
+      note: 'Shown model: Typhoon 2.5. The PRO version uses the same roasting system.',
+    },
     specs: [
       {
         group: 'Capacity',
@@ -149,6 +159,12 @@ export const MODELS = [
       { v: '480',  u: 'kg',          l: 'Machine weight' },
     ],
     forWhom: 'Roasteries supplying wholesale accounts who have outgrown a 10 kg drum but not the room it sits in.',
+    video: {
+      id: 'apYJgeXKsEA',
+      url: 'https://youtu.be/apYJgeXKsEA',
+      title: 'Typhoon 5 roaster in operation',
+      note: 'Shown model: Typhoon 5. The PRO version uses the same roasting system.',
+    },
     specs: [
       {
         group: 'Capacity',
@@ -205,6 +221,12 @@ export const MODELS = [
       { v: '920',  u: 'kg',          l: 'Machine weight' },
     ],
     forWhom: 'Established roasteries running multi-tonne months, and café chains roasting centrally for their own stores.',
+    video: {
+      id: 'IuLVPG_MFsQ',
+      url: 'https://youtu.be/IuLVPG_MFsQ',
+      title: 'Typhoon 10 PRO roaster in operation',
+      note: 'Shown model: Typhoon 10 PRO.',
+    },
     specs: [
       {
         group: 'Capacity',

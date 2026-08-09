@@ -236,6 +236,7 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
     m.specs[1].rows[3],
     m.specs[2].rows.at(-1),
   ];
+  const playVideoLabel = MODEL_UI.playVideoLabel.replace('{model}', m.name);
 
   /* Which preset a machine opens on: whichever one matches the paint it was
      given above. No match simply means nothing starts selected. */
@@ -331,6 +332,31 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
               </button>
             </div>
           </section>
+
+          <section class="model-page" id="model-${m.key}-panel-video"
+                   role="tabpanel" data-model-view="video"
+                   aria-labelledby="model-${m.key}-tab-video" hidden>
+            <div class="model-video-shell">
+              <button class="model-video-poster" type="button" data-video-play
+                      data-video-id="${m.video.id}" aria-label="${playVideoLabel}">
+                <img alt="" width="480" height="360" loading="lazy" decoding="async"
+                     data-video-thumb data-src="https://i.ytimg.com/vi/${m.video.id}/hqdefault.jpg">
+                <span class="model-video-overlay">
+                  <span class="model-video-play-icon" aria-hidden="true"></span>
+                  <span>${m.video.title}</span>
+                </span>
+              </button>
+              <iframe class="model-video-frame" data-video-frame hidden
+                      title="${m.video.title}"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="model-video-copy">
+              <p>${m.video.note}</p>
+              <a href="${m.video.url}" target="_blank" rel="noopener">${MODEL_UI.watchOnYouTubeLabel}</a>
+            </div>
+            <p class="model-video-load-note mono">${MODEL_UI.videoLoadNote}</p>
+          </section>
         </div>
 
         <div class="model-view-footer mono" data-rise>
@@ -354,7 +380,20 @@ $$('.chapter').forEach(ch => {
   const pages = $$('[data-model-view]', ch);
   const all = $$('details', ch);
   const status = $('.model-view-status', ch);
+  const videoPlay = $('[data-video-play]', ch);
+  const videoFrame = $('[data-video-frame]', ch);
+  const videoThumb = $('[data-video-thumb]', ch);
   let activeIndex = 0;
+
+  const prepareVideo = () => {
+    if (!videoThumb.hasAttribute('src')) videoThumb.src = videoThumb.dataset.src;
+  };
+  const resetVideo = () => {
+    if (!videoFrame.hasAttribute('src')) return;
+    videoFrame.removeAttribute('src');
+    videoFrame.hidden = true;
+    videoPlay.hidden = false;
+  };
 
   const syncOpenState = () => {
     const inSpecs = MODEL_UI.tabs[activeIndex]?.key === 'specs';
@@ -385,6 +424,8 @@ $$('.chapter').forEach(ch => {
 
     ch.dataset.view = key;
     status.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(MODEL_UI.tabs.length).padStart(2, '0')} · ${MODEL_UI.tabs[activeIndex].label}`;
+    if (key === 'video') prepareVideo();
+    else resetVideo();
     syncOpenState();
     if (changed && report) {
       track('model_detail_view', { model: ch.dataset.model, view: key, source });
@@ -415,6 +456,14 @@ $$('.chapter').forEach(ch => {
   $('[data-model-view-next]', ch).addEventListener('click', () => {
     const next = (activeIndex + 1) % MODEL_UI.tabs.length;
     showView(MODEL_UI.tabs[next].key, { source: 'arrow' });
+  });
+
+  videoPlay.addEventListener('click', () => {
+    prepareVideo();
+    videoFrame.src = `https://www.youtube-nocookie.com/embed/${videoPlay.dataset.videoId}?autoplay=1&rel=0`;
+    videoFrame.hidden = false;
+    videoPlay.hidden = true;
+    track('model_video_play', { model: ch.dataset.model, video_id: videoPlay.dataset.videoId });
   });
 
   let touchStart = null;
