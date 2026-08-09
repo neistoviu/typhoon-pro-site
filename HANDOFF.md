@@ -102,6 +102,11 @@ the short list.
     has no `loop`; the browser holds its last frame. Its source, poster, mobile
     media query and crop position live in `SITE.mobileHeroVideo`. Desktop keeps
     the existing hero photograph, and reduced-motion keeps the poster.
+12. **Dimension drawings are local assets.** Each model owns two files under
+    `MODELS[].dimensionDrawings`, and its `Dimensions` value is a normal spec
+    row selected into Fit & setup by `MODEL_UI.fitSpecLabels`. The Fit panel
+    must keep its own desktop scrolling because both drawings make it taller
+    than a short viewport.
 
 ## Open items
 

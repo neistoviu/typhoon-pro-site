@@ -167,6 +167,13 @@ model in `js/content.js`. The preview image loads only when the visitor opens
 the Video tab. The YouTube player itself loads only after Play is pressed, and
 is removed when the visitor leaves the tab so audio cannot continue off-screen.
 
+Fit & setup repeats the selected rows listed in `MODEL_UI.fitSpecLabels` and
+shows the side and front dimension drawings from `MODELS[].dimensionDrawings`.
+The six PNG files are stored in `img/dimensions/`; they are local copies of the
+official diagrams used on each model page at typhoon.coffee. On phones the two
+views stack so the measurement labels stay readable. On desktop the panel
+scrolls internally, just like an expanded specification table.
+
 ---
 
 ## The opening photograph

@@ -257,6 +257,10 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
   const fitRows = MODEL_UI.fitSpecLabels
     .map(label => modelSpecRows.find(([rowLabel]) => rowLabel === label))
     .filter(Boolean);
+  const dimensionDrawings = m.dimensionDrawings.map(drawing => `
+    <img src="${drawing.src}" alt="${drawing.alt}"
+         width="${drawing.width}" height="${drawing.height}"
+         loading="lazy" decoding="async">`).join('');
   const playVideoLabel = MODEL_UI.playVideoLabel.replace('{model}', m.name);
 
   /* Which preset a machine opens on: whichever one matches the paint it was
@@ -345,6 +349,9 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
                 ${fitRows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
               </dl>
             </div>
+            <figure class="model-drawing">
+              <div class="model-drawing-grid">${dimensionDrawings}</div>
+            </figure>
             <div class="chapter-actions">
               ${price}
               <button class="btn btn-sm" type="button" data-lead-intent="pricing"
@@ -418,7 +425,9 @@ $$('.chapter').forEach(ch => {
 
   const syncOpenState = () => {
     const inSpecs = MODEL_UI.tabs[activeIndex]?.key === 'specs';
+    const inFit = MODEL_UI.tabs[activeIndex]?.key === 'fit';
     ch.classList.toggle('specs-open', inSpecs && all.some(d => d.open));
+    ch.classList.toggle('fit-open', inFit);
   };
 
   const showView = (key, { focusTab = false, source = 'tab', report = true } = {}) => {

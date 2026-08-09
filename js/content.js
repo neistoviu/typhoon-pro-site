@@ -63,7 +63,7 @@ export const MODEL_UI = {
   exploreLabel: 'I’m just exploring, let’s dive in',
   bestFitLabel: 'Best fit',
   installationLabel: 'Installation at a glance',
-  fitSpecLabels: ['Batch size', 'Minimum room area'],
+  fitSpecLabels: ['Batch size', 'Minimum room area', 'Dimensions'],
   playVideoLabel: 'Play {model} video',
   watchOnYouTubeLabel: 'Open on YouTube',
   videoLoadNote: 'YouTube loads only after you press play.',
@@ -110,6 +110,20 @@ export const MODELS = [
       title: 'Typhoon 2.5 roaster in operation',
       note: 'Shown model: Typhoon 2.5. The PRO version uses the same roasting system.',
     },
+    dimensionDrawings: [
+      {
+        src: 'img/dimensions/typhoon-2pro-side.png',
+        alt: 'Typhoon 2.5 PRO dimension drawing, side view',
+        width: 1150,
+        height: 1030,
+      },
+      {
+        src: 'img/dimensions/typhoon-2pro-front.png',
+        alt: 'Typhoon 2.5 PRO dimension drawing, front view',
+        width: 616,
+        height: 1030,
+      },
+    ],
     specs: [
       {
         group: 'Capacity',
@@ -135,6 +149,7 @@ export const MODELS = [
         rows: [
           ['Machine weight', '310 kg'],
           ['Minimum room area', '15 m²'],
+          ['Dimensions', '1800 x 1150 x 1650 mm'],
           ['Exhaust — chamber', '136 Nm³/h'],
           ['Exhaust — cooling tray', '462 Nm³/h'],
           ['Noise level', '70.5 dBA · 75 dBC'],
@@ -172,6 +187,20 @@ export const MODELS = [
       title: 'Typhoon 5 roaster in operation',
       note: 'Shown model: Typhoon 5. The PRO version uses the same roasting system.',
     },
+    dimensionDrawings: [
+      {
+        src: 'img/dimensions/typhoon-5pro-side.png',
+        alt: 'Typhoon 5 PRO dimension drawing, side view',
+        width: 1169,
+        height: 1018,
+      },
+      {
+        src: 'img/dimensions/typhoon-5pro-front.png',
+        alt: 'Typhoon 5 PRO dimension drawing, front view',
+        width: 616,
+        height: 1018,
+      },
+    ],
     specs: [
       {
         group: 'Capacity',
@@ -197,6 +226,7 @@ export const MODELS = [
         rows: [
           ['Machine weight', '480 kg'],
           ['Minimum room area', '25 m²'],
+          ['Dimensions', '2150 x 1300 x 1900 mm'],
           ['Exhaust — chamber', '180 Nm³/h'],
           ['Exhaust — cooling tray', '748 Nm³/h'],
           ['Noise level', '70.5 dBA · 75 dBC'],
@@ -234,6 +264,20 @@ export const MODELS = [
       title: 'Typhoon 10 PRO roaster in operation',
       note: 'Shown model: Typhoon 10 PRO.',
     },
+    dimensionDrawings: [
+      {
+        src: 'img/dimensions/typhoon-10pro-side.png',
+        alt: 'Typhoon 10 PRO dimension drawing, side view',
+        width: 518,
+        height: 438,
+      },
+      {
+        src: 'img/dimensions/typhoon-10pro-front.png',
+        alt: 'Typhoon 10 PRO dimension drawing, front view',
+        width: 235,
+        height: 438,
+      },
+    ],
     specs: [
       {
         group: 'Capacity',
@@ -259,6 +303,7 @@ export const MODELS = [
         rows: [
           ['Machine weight', '920 kg'],
           ['Minimum room area', '40 m²'],
+          ['Dimensions', '2740 x 1600 x 1980 mm'],
           ['Exhaust — chamber', '317 Nm³/h'],
           ['Exhaust — cooling tray', '2 860 Nm³/h'],
           ['Noise level', '70.5 dBA · 75 dBC'],

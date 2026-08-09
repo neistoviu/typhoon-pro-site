@@ -557,6 +557,15 @@ body.menu-open,body.modal-open{overflow:hidden}
 }
 .fit-facts dt{color:var(--ink-soft)}
 .fit-facts dd{font-family:'JetBrains Mono',monospace;font-size:12.5px;text-align:right}
+.model-drawing{
+  margin:0;padding:12px;border:1px solid var(--line);border-radius:12px;
+  background:#fff;overflow:hidden;
+}
+.model-drawing-grid{
+  display:grid;grid-template-columns:minmax(0,1.9fr) minmax(104px,1fr);
+  align-items:end;gap:10px;
+}
+.model-drawing img{display:block;width:100%;height:auto;min-width:0;object-fit:contain}
 
 .model-video-shell{
   position:relative;aspect-ratio:16/9;overflow:hidden;border-radius:14px;
@@ -657,7 +666,8 @@ body.menu-open,body.modal-open{overflow:hidden}
    model chapter pinned, but let the information panel consume the wheel or
    touch gesture itself so the visitor can read every specification instead
    of merely advancing the model rotation behind it. */
-.chapter.specs-open .chapter-panel{
+.chapter.specs-open .chapter-panel,
+.chapter.fit-open .chapter-panel{
   max-height:calc(100dvh - 140px);overflow-y:auto;overscroll-behavior-y:contain;
   scrollbar-gutter:stable;padding-right:8px;-webkit-overflow-scrolling:touch;
 }
@@ -673,7 +683,8 @@ body.menu-open,body.modal-open{overflow:hidden}
   .chapter-inner{padding-top:clamp(70px,9vh,98px)}
   .stat-row .v{font-size:clamp(1.8rem,2.6vw,2.4rem)}
   .stat-row > div{padding:13px 10px 12px}
-  .chapter.specs-open .chapter-panel{max-height:calc(100dvh - 110px)}
+  .chapter.specs-open .chapter-panel,
+  .chapter.fit-open .chapter-panel{max-height:calc(100dvh - 110px)}
 }
 
 /* Narrow screens drop the sticky column: the machine gets a real block of
@@ -693,7 +704,8 @@ body.menu-open,body.modal-open{overflow:hidden}
      scroll direction changes. */
   .chapter-void{flex:none;height:40svh}
   .chapter-panel{max-width:none}
-  .chapter.specs-open .chapter-panel{
+  .chapter.specs-open .chapter-panel,
+  .chapter.fit-open .chapter-panel{
     max-height:none;overflow:visible;padding-right:0;scrollbar-gutter:auto;
   }
 }
@@ -710,6 +722,9 @@ body.menu-open,body.modal-open{overflow:hidden}
   .model-video-overlay{padding:14px;font-size:14px}
   .model-video-play-icon{width:44px;height:44px}
   .model-video-play-icon::after{left:18px;top:14px}
+  .model-drawing{padding:10px}
+  .model-drawing-grid{grid-template-columns:1fr;gap:16px}
+  .model-drawing img:last-child{width:min(64%,240px);justify-self:center}
 }
 
 /* ===========================================================================
