@@ -1240,16 +1240,29 @@ addEventListener('load', sweep);
   });
   g.append(legend);
 
-  /* ---- the live line: revealed by dash offset --------------------------- */
-  const live = line('', C.bean, 2.4);
-  let liveLen = 0;
+  /* ---- the live line: revealed through one continuous window ------------
+     A dash offset looks like a drawing animation only while the browser's
+     measured path length exactly matches the dash pattern. Some WebKit
+     versions return a scaled length for a responsive SVG, which repeats the
+     dash and exposes several disconnected pieces at once. A clipping window
+     is independent of path length: its right edge follows the playhead, so
+     only one continuous prefix can ever be visible. */
+  const clipId = 'repeat-live-window';
+  const defs = mk('defs', {});
+  const liveClip = mk('clipPath', { id: clipId, clipPathUnits: 'userSpaceOnUse' });
+  const liveWindow = mk('rect', {
+    x: L, y: T - 6, width: 0, height: B - T + 12,
+  });
+  liveClip.append(liveWindow);
+  defs.append(liveClip);
+  svg.prepend(defs);
+
+  const live = line('', C.bean, 2.4, { 'clip-path': `url(#${clipId})` });
 
   const newBatch = () => {
     seed += 1.7;
     live.setAttribute('d', pathOf(beanAt, 0, DROP_T, y, 1.1));
-    liveLen = live.getTotalLength();
-    live.style.strokeDasharray = liveLen;
-    live.style.strokeDashoffset = liveLen;
+    liveWindow.setAttribute('width', 0);
   };
   newBatch();
 
@@ -1320,7 +1333,7 @@ addEventListener('load', sweep);
 
       const p = e / DRAW;
       const rt = p * DROP_T;
-      live.style.strokeDashoffset = `${liveLen * (1 - p)}px`;
+      liveWindow.setAttribute('width', Math.max(0, x(rt) - L));
 
       head.setAttribute('opacity', .5);
       head.setAttribute('x1', x(rt)); head.setAttribute('x2', x(rt));
@@ -1334,7 +1347,7 @@ addEventListener('load', sweep);
     } else {
       /* held: the completed roast, sitting on the reference line */
       live.dataset.done = '1';
-      live.style.strokeDashoffset = '0px';
+      liveWindow.setAttribute('width', x(DROP_T) - L);
       head.setAttribute('opacity', 0);
       dot.setAttribute('opacity', 1);
       dot.setAttribute('cx', x(DROP_T)); dot.setAttribute('cy', y(beanAt(DROP_T)));
@@ -1357,7 +1370,7 @@ addEventListener('load', sweep);
 
   /* Reduced motion: show the finished roast, no loop. */
   if (reduced) {
-    live.style.strokeDashoffset = '0px';
+    liveWindow.setAttribute('width', x(DROP_T) - L);
     out.stage.textContent = `${SOFTWARE.chart.droppedLabel} ${mmss(DROP_T)}`;
     out.bean.textContent = `${beanAt(DROP_T).toFixed(1)} °C`;
     out.dtr.textContent  = dtrAt(DROP_T);

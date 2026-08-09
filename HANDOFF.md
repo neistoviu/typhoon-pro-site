@@ -85,7 +85,9 @@ the short list.
    re-find them by colour later: after the first repaint they no longer match.
 6. **The roast chart defines rate of rise first and integrates it** to get the
    bean curve, not the other way round. Drawing a shape and differentiating it
-   is what produced the sharp corners in the first version.
+   is what produced the sharp corners in the first version. Its live bean line
+   is revealed with one SVG clipping window, not a dash offset: the visible
+   line must always be a single continuous prefix from Charge to the playhead.
 7. **A changed `.glb` needs a new filename.** `vercel.json` marks `/models/*`
    immutable for a year.
 8. **Do not `git add -A` blindly.** A parallel agent works in this folder and

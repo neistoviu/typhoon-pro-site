@@ -284,6 +284,13 @@ bean curve meet the turning point with **zero slope**, so the minimum is a round
 bottom. Power and airflow ramp over about nine seconds instead of stepping,
 because a heater cannot make a right angle either.
 
+The bright live bean line is revealed by one rectangular SVG clipping window
+whose right edge follows the playhead. Do not replace it with a dash-offset
+animation: responsive WebKit can repeat a path-length-based dash pattern and
+show several disconnected pieces of the roast at the same time. At every frame
+the visible live line must be one continuous prefix from Charge to the current
+roast time.
+
 Roast length is 6:45 to the drop on a 7:30 axis, which is what the machine
 actually does. The numbers live at the top of the block in `js/ui.js`
 (`TP_T`, `FC_T`, `DROP_T`, `CHARGE`, `TP_C`, `END_C`, `POWER`, `FAN`).
