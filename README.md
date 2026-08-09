@@ -44,10 +44,10 @@ deployment wrapper added separately, not part of the site. It copies
 |---------|-----|---------|
 | Hero — photograph, headline, badges | `#hero` | `HERO` |
 | Model finder — two questions, one recommendation, three ways in | `#finder` | `QUIZ` + `NEXT` |
+| Three machine chapters — 3D, specs, colour presets | `#lineup` | `MODELS` + `PRESETS` |
 | Client references and model filters | `#clients` | `CLIENTS` |
 | Comparison against a drum | `#compare` | `COMPARE` |
 | Savings calculator | `#calc` | `CALCULATOR` + `js/calculator.js` |
-| Three machine chapters — 3D, specs, colour presets | `#lineup` | `MODELS` + `PRESETS` |
 | Software — the auto-repeat explainer and feature grid | `#software` | `SOFTWARE` |
 | Service and onboarding | `#service` | `SERVICE` |
 | Before you commit — samples, online session, showroom | `#try` | `TRY` |
