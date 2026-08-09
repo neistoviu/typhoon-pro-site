@@ -90,6 +90,10 @@ the short list.
    immutable for a year.
 8. **Do not `git add -A` blindly.** A parallel agent works in this folder and
    its half-finished files get swept in. Stage what you changed.
+9. **Model details use tabs, arrows and touch swipe, never the mouse wheel.**
+   Vertical scroll must keep changing the model. The primary overview button
+   opens the lead form with that model selected; the underlined button opens
+   the same model's technical specifications.
 
 ## Open items
 

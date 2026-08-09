@@ -213,11 +213,29 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
       <div class="l">${s.l}</div>
     </div>`).join('');
 
-  const specs = m.specs.map(g => `
-    <details>
+  const specs = m.specs.map((g, gi) => `
+    <details${gi === 0 ? ' open' : ''}>
       <summary>${g.group}<span class="ic"></span></summary>
       <dl>${g.rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
     </details>`).join('');
+
+  const tabs = MODEL_UI.tabs.map((tab, ti) => `
+    <button class="model-tab" id="model-${m.key}-tab-${tab.key}" type="button"
+            role="tab" data-model-tab="${tab.key}"
+            aria-controls="model-${m.key}-panel-${tab.key}"
+            aria-selected="${ti === 0}" tabindex="${ti === 0 ? '0' : '-1'}">
+      ${tab.label}
+    </button>`).join('');
+
+  /* The compact setup view reuses rows from the full specification table.
+     Their labels and values still come from content.js, with no duplicate
+     editable numbers hidden in the renderer. */
+  const fitRows = [
+    m.specs[0].rows[0],
+    m.specs[2].rows[1],
+    m.specs[1].rows[3],
+    m.specs[2].rows.at(-1),
+  ];
 
   /* Which preset a machine opens on: whichever one matches the paint it was
      given above. No match simply means nothing starts selected. */
@@ -258,31 +276,170 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
           <span>${m.replaces}</span>
         </p>
         <h2 class="chapter-name" data-rise>${m.name}</h2>
-        <p class="chapter-lead" data-rise>${m.lead}</p>
-        <p class="chapter-body" data-rise>${m.body}</p>
-        <div class="stat-row" data-rise>${stats}</div>
-        <div class="specs" data-rise>${specs}</div>
-        <div class="chapter-actions" data-rise>
-          ${price}
-          <button class="btn" type="button" data-lead-intent="pricing"
-                  data-lead-model="${m.name}" data-source-section="3d_chapter">${MODEL_UI.quoteLabel}</button>
+        <div class="model-tabs mono" role="tablist" aria-label="${MODEL_UI.tabsLabel}" data-rise>
+          ${tabs}
+        </div>
+
+        <div class="model-pages" data-model-pages>
+          <section class="model-page" id="model-${m.key}-panel-overview"
+                   role="tabpanel" data-model-view="overview"
+                   aria-labelledby="model-${m.key}-tab-overview">
+            <p class="chapter-lead">${m.lead}</p>
+            <p class="chapter-body">${m.body}</p>
+            <div class="stat-row">${stats}</div>
+            <div class="model-choice-actions">
+              <button class="btn" type="button" data-lead-intent="pricing"
+                      data-lead-model="${m.name}" data-source-section="model_overview">
+                ${MODEL_UI.readyLabel}
+              </button>
+              <button class="model-explore-link" type="button" data-model-explore>
+                ${MODEL_UI.exploreLabel}
+              </button>
+            </div>
+          </section>
+
+          <section class="model-page" id="model-${m.key}-panel-specs"
+                   role="tabpanel" data-model-view="specs"
+                   aria-labelledby="model-${m.key}-tab-specs" hidden>
+            <div class="specs">${specs}</div>
+            <div class="model-panel-cta">
+              <button class="btn btn-sm" type="button" data-lead-intent="pricing"
+                      data-lead-model="${m.name}" data-source-section="model_tech_specs">
+                ${MODEL_UI.quoteLabel}
+              </button>
+            </div>
+          </section>
+
+          <section class="model-page" id="model-${m.key}-panel-fit"
+                   role="tabpanel" data-model-view="fit"
+                   aria-labelledby="model-${m.key}-tab-fit" hidden>
+            <div class="model-fit-copy">
+              <p class="model-section-label mono">${MODEL_UI.bestFitLabel}</p>
+              <p>${m.forWhom}</p>
+            </div>
+            <div>
+              <p class="model-section-label mono">${MODEL_UI.installationLabel}</p>
+              <dl class="fit-facts">
+                ${fitRows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
+              </dl>
+            </div>
+            <div class="chapter-actions">
+              ${price}
+              <button class="btn btn-sm" type="button" data-lead-intent="pricing"
+                      data-lead-model="${m.name}" data-source-section="model_fit_setup">
+                ${MODEL_UI.quoteLabel}
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <div class="model-view-footer mono" data-rise>
+          <button class="model-view-arrow" type="button" data-model-view-prev
+                  aria-label="${MODEL_UI.previousViewLabel}"><span aria-hidden="true">←</span></button>
+          <span class="model-view-status" aria-live="polite">01 / ${String(MODEL_UI.tabs.length).padStart(2, '0')} · ${MODEL_UI.tabs[0].label}</span>
+          <button class="model-view-arrow" type="button" data-model-view-next
+                  aria-label="${MODEL_UI.nextViewLabel}"><span aria-hidden="true">→</span></button>
         </div>
       </div>
     </div>
   </section>`;
 }).join('');
 
-/* Only one spec group opens at a time. On short desktop windows an expanded
-   panel gets its own scroll area so page scroll can no longer hide the lower
-   rows behind the sticky 3D chapter. */
+/* Vertical scroll changes the model. Tabs, arrows and a deliberate phone
+   swipe change the information shown for that model. The mouse wheel is never
+   remapped horizontally, so reading a specification cannot rotate the roaster
+   instead of scrolling the text. */
 $$('.chapter').forEach(ch => {
+  const tabs = $$('[data-model-tab]', ch);
+  const pages = $$('[data-model-view]', ch);
   const all = $$('details', ch);
-  const syncOpenState = () => ch.classList.toggle('specs-open', all.some(d => d.open));
+  const status = $('.model-view-status', ch);
+  let activeIndex = 0;
+
+  const syncOpenState = () => {
+    const inSpecs = MODEL_UI.tabs[activeIndex]?.key === 'specs';
+    ch.classList.toggle('specs-open', inSpecs && all.some(d => d.open));
+  };
+
+  const showView = (key, { focusTab = false, source = 'tab', report = true } = {}) => {
+    const nextIndex = MODEL_UI.tabs.findIndex(tab => tab.key === key);
+    if (nextIndex < 0) return;
+    const changed = nextIndex !== activeIndex;
+    activeIndex = nextIndex;
+
+    tabs.forEach((tab, index) => {
+      const selected = index === activeIndex;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      if (selected && focusTab) tab.focus();
+    });
+    pages.forEach((page, index) => {
+      const selected = index === activeIndex;
+      page.hidden = !selected;
+      page.classList.toggle('is-active', selected);
+      if (selected && changed && !reduced) {
+        page.classList.remove('model-page-enter');
+        requestAnimationFrame(() => page.classList.add('model-page-enter'));
+      }
+    });
+
+    ch.dataset.view = key;
+    status.textContent = `${String(activeIndex + 1).padStart(2, '0')} / ${String(MODEL_UI.tabs.length).padStart(2, '0')} · ${MODEL_UI.tabs[activeIndex].label}`;
+    syncOpenState();
+    if (changed && report) {
+      track('model_detail_view', { model: ch.dataset.model, view: key, source });
+    }
+  };
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => showView(tab.dataset.modelTab));
+    tab.addEventListener('keydown', e => {
+      let next = null;
+      if (e.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      if (e.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+      if (e.key === 'Home') next = 0;
+      if (e.key === 'End') next = tabs.length - 1;
+      if (next == null) return;
+      e.preventDefault();
+      showView(tabs[next].dataset.modelTab, { focusTab: true, source: 'keyboard' });
+    });
+  });
+
+  $('[data-model-explore]', ch).addEventListener('click', () => {
+    showView('specs', { focusTab: true, source: 'explore' });
+  });
+  $('[data-model-view-prev]', ch).addEventListener('click', () => {
+    const next = (activeIndex - 1 + MODEL_UI.tabs.length) % MODEL_UI.tabs.length;
+    showView(MODEL_UI.tabs[next].key, { source: 'arrow' });
+  });
+  $('[data-model-view-next]', ch).addEventListener('click', () => {
+    const next = (activeIndex + 1) % MODEL_UI.tabs.length;
+    showView(MODEL_UI.tabs[next].key, { source: 'arrow' });
+  });
+
+  let touchStart = null;
+  const pagesBox = $('[data-model-pages]', ch);
+  pagesBox.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'touch') touchStart = { x: e.clientX, y: e.clientY };
+  }, { passive: true });
+  pagesBox.addEventListener('pointerup', e => {
+    if (!touchStart || e.pointerType !== 'touch') return;
+    const dx = e.clientX - touchStart.x;
+    const dy = e.clientY - touchStart.y;
+    touchStart = null;
+    if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    const next = dx < 0
+      ? (activeIndex + 1) % MODEL_UI.tabs.length
+      : (activeIndex - 1 + MODEL_UI.tabs.length) % MODEL_UI.tabs.length;
+    showView(MODEL_UI.tabs[next].key, { source: 'swipe' });
+  }, { passive: true });
+  pagesBox.addEventListener('pointercancel', () => { touchStart = null; }, { passive: true });
+
   all.forEach(d => d.addEventListener('toggle', () => {
     if (d.open) all.forEach(o => { if (o !== d) o.open = false; });
     requestAnimationFrame(syncOpenState);
   }));
-  syncOpenState();
+  showView(MODEL_UI.tabs[0].key, { report: false });
 });
 
 /* ════════════════════════════════════════════════════ COLOUR PRESETS ════ */

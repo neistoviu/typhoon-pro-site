@@ -450,6 +450,67 @@ body.menu-open,body.modal-open{overflow:hidden}
 }
 .chapter-body{color:var(--ink-mid);font-size:.95rem;line-height:1.56;max-width:44ch}
 
+/* One model, three compact information views. Vertical page scroll still
+   changes the machine; these controls only change the copy beside it. */
+.model-tabs{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
+  padding:4px;background:var(--paper-2);border:1px solid var(--line);
+  border-radius:13px;
+}
+.model-tab{
+  min-width:0;border:0;border-radius:9px;padding:9px 8px;background:transparent;
+  color:var(--ink-soft);font:inherit;font-size:10px;line-height:1.2;
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  transition:background .25s,color .25s,box-shadow .25s;
+}
+.model-tab:hover{color:var(--ink)}
+.model-tab[aria-selected="true"]{
+  background:var(--paper);color:var(--accent);box-shadow:0 1px 5px rgba(12,18,44,.08);
+}
+.model-tab:focus-visible,.model-view-arrow:focus-visible,.model-explore-link:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+}
+
+.model-pages{min-width:0;touch-action:pan-y}
+.model-page{display:grid;gap:clamp(13px,1.8vh,20px);align-content:start}
+.model-page[hidden]{display:none}
+.model-page-enter{animation:modelPageIn .38s var(--ease) both}
+@keyframes modelPageIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+
+.model-choice-actions{display:grid;gap:12px;margin-top:2px}
+.model-choice-actions .btn{width:100%;font-size:15px;padding-block:1em}
+.model-explore-link{
+  justify-self:center;border:0;border-bottom:1px solid currentColor;padding:2px 0 3px;
+  background:none;color:var(--ink-mid);font:inherit;font-size:14px;line-height:1.25;
+  cursor:pointer;transition:color .25s;
+}
+.model-explore-link:hover{color:var(--accent)}
+
+.model-view-footer{
+  display:grid;grid-template-columns:34px 1fr 34px;align-items:center;gap:9px;
+  color:var(--ink-soft);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+}
+.model-view-status{text-align:center}
+.model-view-arrow{
+  width:34px;height:34px;border:1px solid var(--line);border-radius:50%;
+  display:grid;place-items:center;background:transparent;color:var(--ink);
+  font:inherit;font-size:15px;cursor:pointer;transition:border-color .25s,color .25s,background .25s;
+}
+.model-view-arrow:hover{border-color:var(--accent);color:var(--accent);background:var(--paper-2)}
+
+.model-panel-cta{display:flex;justify-content:flex-end;padding-top:2px}
+.model-section-label{
+  margin-bottom:8px;color:var(--accent);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+}
+.model-fit-copy > p:last-child{font-size:1.03rem;line-height:1.5;max-width:46ch}
+.fit-facts{border-top:1px solid var(--line)}
+.fit-facts > div{
+  display:flex;justify-content:space-between;gap:18px;padding:10px 0;
+  border-bottom:1px solid var(--line);font-size:13px;
+}
+.fit-facts dt{color:var(--ink-soft)}
+.fit-facts dd{font-family:'JetBrains Mono',monospace;font-size:12.5px;text-align:right}
+
 .stat-row{
   display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
   border-block:1px solid var(--line);
@@ -549,6 +610,15 @@ body.menu-open,body.modal-open{overflow:hidden}
   .chapter.specs-open .chapter-panel{
     max-height:none;overflow:visible;padding-right:0;scrollbar-gutter:auto;
   }
+}
+
+@media (max-width:520px){
+  .model-tab{font-size:9px;padding-inline:5px}
+  .model-choice-actions .btn{font-size:14px}
+  .model-explore-link{font-size:13px}
+  .model-view-status{font-size:9px}
+  .model-panel-cta .btn,.chapter-actions .btn{width:100%}
+  .chapter-actions{align-items:stretch}
 }
 
 /* ===========================================================================
