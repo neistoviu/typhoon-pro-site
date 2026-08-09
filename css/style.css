@@ -245,6 +245,7 @@ body.menu-open,body.modal-open{overflow:hidden}
 
 .hero-media{position:absolute;inset:0;z-index:-1;display:block}
 .hero-media img{width:100%;height:100%;object-fit:cover;object-position:18% center}
+.hero-video{display:none}
 /* The machines sit centre-right on a pale sweep, so the copy takes the empty
    left third and the scrim only lifts that side towards the paper the rest of
    the page is made of. */
@@ -325,6 +326,51 @@ body.menu-open,body.modal-open{overflow:hidden}
 @media (max-width:700px){
   .hero-badges li{padding:0 10px}
   .hero-badges li:first-child{padding-left:0;border-left:0}
+}
+
+/* On phones the opening film owns the upper half of the viewport. The
+   gradient becomes solid paper before the supporting copy, so the transition
+   is continuous rather than a hard video/card boundary. */
+@media (max-width:760px){
+  .hero{
+    min-height:100svh;padding-top:0;padding-bottom:22px;overflow:hidden;
+    background:var(--paper);
+  }
+  .hero-media{z-index:-3}
+  .hero-media img{object-position:center}
+  .hero-media::after{background:none}
+  .hero-video{
+    display:block;position:absolute;z-index:-2;inset:0 0 auto;
+    width:100%;height:clamp(430px,62svh,560px);
+    object-fit:cover;object-position:var(--hero-video-position,50% 50%);
+    opacity:0;transition:opacity .65s var(--ease);background:var(--paper);
+  }
+  .hero-video.ready{opacity:1}
+  .hero-video.failed{display:none}
+  .hero::after{
+    content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:linear-gradient(to bottom,
+      rgba(241,240,236,0) 0,
+      rgba(241,240,236,0) 34svh,
+      rgba(241,240,236,.38) 43svh,
+      rgba(241,240,236,.92) 57svh,
+      var(--paper) 67svh);
+  }
+  .hero-grid{
+    position:relative;z-index:1;flex:0 0 auto;align-items:start;
+    padding-top:clamp(365px,52svh,480px);
+  }
+  .hero-copy{
+    width:100%;max-width:620px;margin-inline:auto;justify-items:center;
+    gap:14px;text-align:center;
+  }
+  .hero-title{
+    font-size:clamp(2.35rem,10vw,3.2rem);line-height:.96;
+    text-wrap:balance;
+  }
+  .hero-sub{max-width:38ch;margin-inline:auto;font-size:1rem;line-height:1.48}
+  .hero-actions{width:min(100%,560px);justify-content:center}
+  .hero-foot{position:relative;z-index:1;margin-top:22px}
 }
 
 /* ===========================================================================
@@ -822,12 +868,7 @@ body.menu-open,body.modal-open{overflow:hidden}
 }
 
 @media (max-width:620px){
-  .hero{min-height:100svh;padding-bottom:22px}
-  .hero-copy{
-    gap:12px;background:rgba(241,240,236,.91);border:1px solid rgba(255,255,255,.55);
-    border-radius:15px;padding:20px;box-shadow:0 18px 50px rgba(21,23,27,.08);
-    backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
-  }
+  .hero-copy{gap:12px}
   .hero-actions{display:grid;grid-template-columns:1fr 1fr}
   .hero-actions .btn{padding-inline:.9em;min-height:48px}
   .hero-foot{gap:12px}

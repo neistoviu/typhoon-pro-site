@@ -98,6 +98,10 @@ the short list.
 10. **The comparison table must not scroll sideways on phones.** Its mobile
     layout puts the characteristic across the row and the Drum / Typhoon values
     in two columns underneath. Do not restore a fixed table width there.
+11. **The mobile hero video plays once.** It is muted, inline and deliberately
+    has no `loop`; the browser holds its last frame. Its source, poster, mobile
+    media query and crop position live in `SITE.mobileHeroVideo`. Desktop keeps
+    the existing hero photograph, and reduced-motion keeps the poster.
 
 ## Open items
 

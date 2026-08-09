@@ -12,6 +12,12 @@ export const SITE = {
   title: 'Typhoon PRO | Electric convection coffee roasters',
   description: 'Typhoon 2.5 PRO, 5 PRO and 10 PRO electric convection coffee roasters. Compare models, estimate running costs and request pricing.',
   heroImageAlt: 'Typhoon 2.5 PRO, 5 PRO and 10 PRO roasters side by side',
+  mobileHeroVideo: {
+    src: 'img/hero/air-roasting-mobile-v1.mp4',
+    poster: 'img/hero/lineup-mobile.webp',
+    media: '(max-width: 760px)',
+    position: '50% 50%',
+  },
   logoAlt: 'Typhoon Roasters',
   mainSite: 'https://typhoon.coffee',
   privacyUrl: 'https://typhoon.coffee/privacy/',

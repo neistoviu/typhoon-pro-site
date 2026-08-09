@@ -36,6 +36,30 @@ const track = (name, detail = {}) => {
   $('.nav-brand span').textContent = NAV.seriesLabel;
   $('.hero-media img').alt = SITE.heroImageAlt;
 
+  const heroVideo = $('.hero-video');
+  const heroVideoMedia = matchMedia(SITE.mobileHeroVideo.media);
+  heroVideo.poster = SITE.mobileHeroVideo.poster;
+  heroVideo.style.setProperty('--hero-video-position', SITE.mobileHeroVideo.position);
+
+  const loadHeroVideo = () => {
+    if (!heroVideoMedia.matches || reduced || heroVideo.dataset.loaded) return;
+    heroVideo.dataset.loaded = 'true';
+    heroVideo.src = SITE.mobileHeroVideo.src;
+    heroVideo.load();
+    heroVideo.play().catch(() => {
+      /* The poster remains visible when a browser blocks autoplay. */
+    });
+  };
+
+  heroVideo.addEventListener('loadeddata', () => heroVideo.classList.add('ready'));
+  heroVideo.addEventListener('ended', () => {
+    heroVideo.pause();
+    heroVideo.classList.add('held');
+  });
+  heroVideo.addEventListener('error', () => heroVideo.classList.add('failed'));
+  heroVideoMedia.addEventListener('change', loadHeroVideo);
+  loadHeroVideo();
+
   const link = item => `<a href="${item.href}">${item.label}</a>`;
   $('.nav-links').innerHTML = NAV.items.map(link).join('');
   $('.nav-links').setAttribute('aria-label', NAV.primaryLabel);

@@ -171,11 +171,11 @@ is removed when the visitor leaves the tab so audio cannot continue off-screen.
 
 ## The opening photograph
 
-The hero is a photograph, not 3D. Three machines rotating on the first screen
-was the wrong first thing to show someone: it says "here is a CAD model" when
-the job of that screen is to say "this belongs in a coffee bar". The machines
-now appear one at a time, in their own chapters, once a visitor is already
-reading about them.
+The desktop hero is a photograph, not 3D. Three machines rotating on the first
+screen was the wrong first thing to show someone: it says "here is a CAD model"
+when the job of that screen is to say "this belongs in a coffee bar". The
+machines now appear one at a time, in their own chapters, once a visitor is
+already reading about them.
 
 It is art-directed rather than resized. `img/hero/cafe-desktop.webp` keeps the
 wide frame — machine on the left, copy in the dark half on the right — and
@@ -188,6 +188,13 @@ brightness multiply: gamma opens the shadows and leaves the lamps where the
 lighting put them, where a flat multiply would blow them out. To regenerate
 from a new render, that recipe is a few lines of Pillow — gamma 1.20,
 brightness 1.06, saturation 1.04.
+
+Phones replace that photograph with `img/hero/air-roasting-mobile-v1.mp4`.
+The lightweight H.264 file autoplays muted and inline once, then remains on its
+last frame. It is loaded only when the mobile media query matches; reduced-
+motion visitors and browsers that block autoplay keep the portrait photograph.
+The file path, fallback poster, media query and crop position all live under
+`SITE.mobileHeroVideo` in `js/content.js`.
 
 ## Phones behave differently on purpose
 
