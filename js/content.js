@@ -39,14 +39,9 @@ export const NAV = {
 };
 
 export const MODEL_UI = {
-  cardsTitle: 'Three sizes. One production system.',
-  cardsSub: 'Choose by output and installation requirements. The calculator and enquiry form stay focused on these three PRO models.',
   outputLabel: 'Output',
-  areaLabel: 'Minimum room area',
   replacesLabel: 'Replaces',
   batchesLabel: 'Batches',
-  fitLabel: 'Best fit',
-  viewLabel: 'View in 3D',
   colourLabel: 'Colour',
   colourGroupLabel: 'Colour presets',
   priceOnRequest: 'Price on request',
@@ -572,14 +567,6 @@ export const SERVICE = {
     { t: 'On-site when required', d: 'An engineer visit remains available when the case cannot be completed remotely.' },
     { t: 'Training included', d: 'We build the first profiles with your team during commissioning and prepare operators for daily production.' },
   ],
-};
-
-export const CUSTOMIZATION = {
-  eyebrow: 'Colours and configuration',
-  title: 'Build it around your space and brand.',
-  sub: 'Choose any RAL colour for the body and trim. Add loading, destoning, exhaust filtration or blending equipment to match the production flow.',
-  cta: 'Discuss colours and equipment',
-  images: ['colour-1.webp', 'colour-2.webp', 'colour-3.webp', 'colour-4.webp', 'colour-5.webp', 'colour-6.webp', 'colour-7.webp', 'colour-8.webp', 'colour-9.webp'],
 };
 
 /* --- FAQ -----------------------------------------------------------------

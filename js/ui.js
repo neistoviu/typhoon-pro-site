@@ -4,7 +4,7 @@
 --------------------------------------------------------------------------- */
 
 import { SITE, NAV, MODEL_UI, MODELS, HERO, QUIZ, PRESETS, SOFTWARE, COMPARE,
-         CLIENTS, TRY, CALCULATOR, FAQ, SERVICE, CUSTOMIZATION, NEXT, CTA, FORM,
+         CLIENTS, TRY, CALCULATOR, FAQ, SERVICE, NEXT, CTA, FORM,
          FOOTER } from './content.js';
 
 const $  = (s, r = document) => r.querySelector(s);
@@ -201,29 +201,6 @@ const track = (name, detail = {}) => {
       .forEach(o => o.setAttribute('aria-pressed', o === btn));
     render();
   }));
-})();
-
-(function modelCards() {
-  $('.model-cards-head .h3').textContent = MODEL_UI.cardsTitle;
-  $('.model-cards-head .lede').textContent = MODEL_UI.cardsSub;
-  $('.model-card-grid').innerHTML = MODELS.map(m => {
-    const area = m.specs.find(x => x.group === 'Installation')?.rows
-      .find(([label]) => label === 'Minimum room area')?.[1] || '';
-    return `<article class="model-card" data-rise>
-      <p class="model-card-kicker mono">${m.batch}</p>
-      <h3>${m.name}</h3>
-      <p>${m.forWhom}</p>
-      <dl>
-        <div><dt>${MODEL_UI.outputLabel}</dt><dd>${m.stats[0].v} ${m.stats[0].u}</dd></div>
-        <div><dt>${MODEL_UI.areaLabel}</dt><dd>${area}</dd></div>
-      </dl>
-      <div class="model-card-actions">
-        <a class="btn btn-ghost" href="#m-${m.key}">${MODEL_UI.viewLabel}</a>
-        <button class="btn" type="button" data-lead-intent="pricing"
-                data-lead-model="${m.name}" data-source-section="model_card">${MODEL_UI.quoteLabel}</button>
-      </div>
-    </article>`;
-  }).join('');
 })();
 
 /* ═══════════════════════════════════════════════ MODEL CHAPTERS ═════════ */
@@ -562,23 +539,6 @@ $$('.presets').forEach(box => {
     </div>
     <ul class="svc-list">${SERVICE.items.map(item => `
       <li data-rise><h3>${item.t}</h3><p>${item.d}</p></li>`).join('')}</ul>`;
-})();
-
-/* ═══════════════════════════════════════════════ CUSTOM CONFIGURATION ══ */
-
-(() => {
-  const s = $('.colours');
-  const cards = CUSTOMIZATION.images.map((src, i) => `
-    <figure class="swatch"><img src="img/colours/${src}" alt="${CUSTOMIZATION.title} — ${i + 1}"
-      width="680" height="680" loading="lazy" decoding="async"></figure>`).join('');
-  $('.wrap', s).innerHTML = `
-    <div class="colours-head">
-      <p class="eyebrow mono" data-rise>${CUSTOMIZATION.eyebrow}</p>
-      <h2 class="h2" data-rise>${CUSTOMIZATION.title}</h2>
-      <p class="lede" data-rise>${CUSTOMIZATION.sub}</p>
-      <button class="btn" type="button" data-lead-intent="colors" data-source-section="configuration">${CUSTOMIZATION.cta}</button>
-    </div>
-    <div class="swatch-rail" data-rise><div class="swatch-track">${cards}${cards}</div></div>`;
 })();
 
 /* ════════════════════════════════════════════════════════ CONTACT ═══════ */

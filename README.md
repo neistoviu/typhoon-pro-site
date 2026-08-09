@@ -51,7 +51,6 @@ deployment wrapper added separately, not part of the site. It copies
 | Software — the auto-repeat explainer and feature grid | `#software` | `SOFTWARE` |
 | Service and onboarding | `#service` | `SERVICE` |
 | Before you commit — samples, online session, showroom | `#try` | `TRY` |
-| Colours and equipment | `#colours` | `CUSTOMIZATION` |
 | FAQ | `#faq` | `FAQ` |
 | Contact and real lead form | `#contact` | `CTA` + `FORM` |
 

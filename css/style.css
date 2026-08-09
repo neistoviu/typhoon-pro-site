@@ -399,23 +399,6 @@ body.menu-open,body.modal-open{overflow:hidden}
 .quiz-figures dt{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
 .quiz-figures dd{font-size:1.35rem;font-weight:600;letter-spacing:-.03em;margin-top:5px}
 
-.model-cards-head{display:grid;gap:10px;margin-top:clamp(54px,8vh,96px);max-width:760px}
-.model-card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px}
-.model-card{
-  border:1px solid var(--line);border-radius:14px;background:var(--paper-2);
-  padding:clamp(22px,2.4vw,34px);display:grid;gap:16px;align-content:start;
-}
-.model-card-kicker{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
-.model-card h3{font-size:clamp(1.5rem,2.4vw,2.15rem);letter-spacing:-.035em;line-height:1}
-.model-card > p:not(.model-card-kicker){color:var(--ink-mid);font-size:.93rem;line-height:1.55;min-height:5.8em}
-.model-card dl{border-top:1px solid var(--line)}
-.model-card dl div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.84rem}
-.model-card dt{color:var(--ink-soft)}
-.model-card dd{text-align:right;font-family:'JetBrains Mono',monospace;font-size:.78rem}
-.model-card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-.model-card-actions .btn{flex:1;padding-inline:1em;white-space:nowrap}
-@media (max-width:980px){.model-card-grid{grid-template-columns:1fr}.model-card > p:not(.model-card-kicker){min-height:0}}
-
 /* ===========================================================================
    Model chapters
    =========================================================================== */
@@ -692,8 +675,6 @@ body.menu-open,body.modal-open{overflow:hidden}
   .hero-foot{gap:12px}
   .hero-badges{display:grid;grid-template-columns:1fr 1fr;width:100%;row-gap:7px}
   .hero-badges li{border-left:0;padding:0}
-  .model-card-actions{display:grid;grid-template-columns:1fr 1fr}
-  .model-card-actions .btn{white-space:normal}
 }
 
 body.menu-open .nav{color:var(--ink)}
@@ -869,39 +850,6 @@ body.menu-open .nav-brand img{filter:none}
 }
 @media (max-width:600px){
   .svc-list,.sw-features{grid-template-columns:1fr}
-}
-
-/* ===========================================================================
-   Finish — the colour strip
-   =========================================================================== */
-
-.colours{
-  padding-block:clamp(70px,11vh,150px);
-  background:var(--paper);position:relative;z-index:2;overflow:hidden;
-}
-.colours-head{display:grid;gap:18px;justify-items:start;max-width:900px}
-.colours-head .h2{max-width:14ch}
-.colours-head .btn{margin-top:6px}
-
-.swatch-rail{margin-top:clamp(28px,5vh,60px);overflow:hidden}
-.swatch-track{
-  display:flex;align-items:flex-end;gap:clamp(18px,3vw,52px);
-  width:max-content;
-  animation:marquee 78s linear infinite;
-}
-.colours:hover .swatch-track,
-.swatch-rail:focus-within .swatch-track{animation-play-state:paused}
-
-@keyframes marquee{to{transform:translateX(-50%)}}
-
-/* height + aspect-ratio reserve the width before the image decodes */
-.swatch{flex:0 0 auto;height:clamp(160px,26vh,290px)}
-.swatch img{height:100%;width:100%;max-width:none;object-fit:contain}
-
-/* No marquee for reduced motion: the strip becomes a normal swipeable rail. */
-@media (prefers-reduced-motion:reduce){
-  .swatch-track{animation:none;width:auto}
-  .swatch-rail{overflow-x:auto;padding-inline:var(--pad)}
 }
 
 /* ===========================================================================
