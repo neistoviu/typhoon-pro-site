@@ -208,8 +208,13 @@ main,.nav,.foot{position:relative;z-index:1}
 .nav-menu-toggle[aria-expanded="true"] i{transform:rotate(45deg)}
 .nav-menu-toggle[aria-expanded="true"] i::before{transform:rotate(-90deg)}
 .nav-mobile{
-  position:fixed;inset:0;top:0;z-index:-1;background:var(--paper);color:var(--ink);
-  padding:110px var(--pad) 36px;overflow-y:auto;
+  position:fixed;inset:0;z-index:50;background:var(--paper);color:var(--ink);
+  padding:
+    calc(96px + env(safe-area-inset-top))
+    max(var(--pad),env(safe-area-inset-right))
+    calc(36px + env(safe-area-inset-bottom))
+    max(var(--pad),env(safe-area-inset-left));
+  overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
 }
 .nav-mobile[hidden]{display:none}
 .nav-mobile-links{display:grid;gap:4px}
@@ -902,6 +907,10 @@ body.menu-open,body.modal-open{overflow:hidden}
 
 body.menu-open .nav{color:var(--ink)}
 body.menu-open .nav-brand img{filter:none}
+body.menu-open .nav{
+  background:transparent;border-bottom-color:transparent;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+}
 
 /* ===========================================================================
    Service

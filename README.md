@@ -209,6 +209,14 @@ white copy. Reduced-motion visitors keep the portrait photograph. The file
 path, same-frame poster, transition colour, media query and crop position all
 live under `SITE.mobileHeroVideo` in `js/content.js`.
 
+## Mobile navigation
+
+The mobile menu is a viewport-level sibling of the fixed header, not its child.
+A backdrop-filtered ancestor becomes the containing block for fixed descendants
+in mobile browsers; keeping the menu inside the header therefore clipped it to
+the header's height after scrolling. The panel now fills the viewport, scrolls
+independently and includes safe-area padding for phone screen edges.
+
 ## Phones behave differently on purpose
 
 Three separate things made the machines judder on a phone, and all three fixes

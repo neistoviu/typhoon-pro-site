@@ -113,6 +113,11 @@ the short list.
     row selected into Fit & setup by `MODEL_UI.fitSpecLabels`. The Fit panel
     must keep its own desktop scrolling because both drawings make it taller
     than a short viewport.
+13. **The mobile menu must stay outside the fixed header.** A header with
+    `backdrop-filter` becomes the containing block for fixed descendants on
+    mobile browsers and clips a nested menu to the header height. `#mobileMenu`
+    is deliberately a sibling of `.nav`, with its own viewport-level layer and
+    safe-area padding.
 
 ## Open items
 
