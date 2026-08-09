@@ -321,7 +321,9 @@ section.
 ## Things that will bite
 
 - **Fonts come from Google Fonts.** If the site must work without third-party
-  requests, self-host Inter Tight and JetBrains Mono and change the `<link>`.
+  requests, self-host Inter Tight, JetBrains Mono and Orbitron and change the
+  `<link>`. Orbitron is used only for the blue `PRO` display mark in model
+  headings; the complete model name still comes from `content.js`.
 - **Three.js and the Draco decoder come from jsDelivr.** Same caveat; vendor
   them into the repo if the CDN is not acceptable.
 - **`window.__typhoon`** is left in `scene.js` on purpose — it exposes the

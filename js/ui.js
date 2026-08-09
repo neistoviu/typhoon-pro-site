@@ -289,6 +289,13 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
     ? `<div class="price-tag"><span class="p">${m.price}</span><span class="n">${m.priceNote}</span></div>`
     : `<div class="price-tag"><span class="p">${MODEL_UI.priceOnRequest}</span><span class="n">${m.priceNote}</span></div>`;
   const rotateAriaLabel = MODEL_UI.rotateAriaLabel.replace('{model}', m.name);
+  /* The full model name stays editable in content.js. Only the trailing PRO
+     mark gets a display treatment here, so forms and analytics keep using the
+     exact same source value. */
+  const nameParts = m.name.match(/^(.*?)\s+(PRO)$/i);
+  const modelHeading = nameParts
+    ? `<span class="chapter-name-main">${nameParts[1]}</span> <span class="chapter-name-pro">${nameParts[2]}</span>`
+    : `<span class="chapter-name-main">${m.name}</span>`;
 
   return `
   <section class="chapter" id="m-${m.key}" data-model="${m.key}">
@@ -309,7 +316,7 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
           <b>${String(i + 1).padStart(2, '0')} / ${String(MODELS.length).padStart(2, '0')}</b>
           <span>${m.replaces}</span>
         </p>
-        <h2 class="chapter-name" data-rise>${m.name}</h2>
+        <h2 class="chapter-name" data-rise>${modelHeading}</h2>
         <div class="model-tabs mono" role="tablist" aria-label="${MODEL_UI.tabsLabel}" data-rise>
           ${tabs}
         </div>

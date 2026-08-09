@@ -128,6 +128,11 @@ the short list.
     the 2.5 PRO at 1, the 5 PRO at 1.1 and the physically largest 10 PRO at
     1.22. The rotation-safe fit remains the base; do not remove the multiplier
     and make the 10 PRO look smallest again.
+15. **PRO is a display mark, not a second model name.** The complete editable
+    name stays in `MODELS[].name`; `ui.js` only separates a trailing `PRO` into
+    its own span. It uses Orbitron in the brand blue while the Typhoon name and
+    model number keep the primary heading face. Do not duplicate model names in
+    HTML or CSS to preserve `content.js` as the source of truth.
 
 ## Open items
 
