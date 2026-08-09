@@ -102,9 +102,12 @@ the short list.
     layout puts the characteristic across the row and the Drum / Typhoon values
     in two columns underneath. Do not restore a fixed table width there.
 11. **The mobile hero video plays once.** It is muted, inline and deliberately
-    has no `loop`; the browser holds its last frame. Its source, poster, mobile
-    media query and crop position live in `SITE.mobileHeroVideo`. Desktop keeps
-    the existing hero photograph, and reduced-motion keeps the poster.
+    has no `loop`; the browser holds its last frame. The current MP4 is already
+    encoded 1.5 times slower. Its poster must remain a frame from that same
+    video, otherwise the old machine photograph flashes before playback. Its
+    source, poster, transition colour, mobile media query and crop position live
+    in `SITE.mobileHeroVideo`. Desktop keeps the existing hero photograph, and
+    reduced-motion keeps the portrait photograph.
 12. **Dimension drawings are local assets.** Each model owns two files under
     `MODELS[].dimensionDrawings`, and its `Dimensions` value is a normal spec
     row selected into Fit & setup by `MODEL_UI.fitSpecLabels`. The Fit panel

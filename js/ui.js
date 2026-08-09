@@ -37,9 +37,11 @@ const track = (name, detail = {}) => {
   $('.hero-media img').alt = SITE.heroImageAlt;
 
   const heroVideo = $('.hero-video');
+  const hero = $('.hero');
   const heroVideoMedia = matchMedia(SITE.mobileHeroVideo.media);
   heroVideo.poster = SITE.mobileHeroVideo.poster;
   heroVideo.style.setProperty('--hero-video-position', SITE.mobileHeroVideo.position);
+  hero.style.setProperty('--hero-mobile-transition', SITE.mobileHeroVideo.transitionColor);
 
   const loadHeroVideo = () => {
     if (!heroVideoMedia.matches || reduced || heroVideo.dataset.loaded) return;
@@ -56,7 +58,10 @@ const track = (name, detail = {}) => {
     heroVideo.pause();
     heroVideo.classList.add('held');
   });
-  heroVideo.addEventListener('error', () => heroVideo.classList.add('failed'));
+  heroVideo.addEventListener('error', () => {
+    heroVideo.classList.add('failed');
+    hero.classList.add('video-failed');
+  });
   heroVideoMedia.addEventListener('change', loadHeroVideo);
   loadHeroVideo();
 
