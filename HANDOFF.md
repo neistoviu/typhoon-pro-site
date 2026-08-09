@@ -90,11 +90,12 @@ the short list.
    immutable for a year.
 8. **Do not `git add -A` blindly.** A parallel agent works in this folder and
    its half-finished files get swept in. Stage what you changed.
-9. **Model details use tabs, arrows and touch swipe, never the mouse wheel.**
-   Vertical scroll must keep changing the model. The primary overview button
-   opens the lead form with that model selected; the underlined button opens
-   the same model's technical specifications. Each model also has a lazy-loaded
-   Video view. Leaving it must unload the YouTube player so hidden audio stops.
+9. **Model details use labelled tabs and touch swipe, never arrow buttons or the
+   mouse wheel.** Vertical scroll must keep changing the model. The overview has
+   one primary button, which opens the lead form with that model selected.
+   Visitors open technical specifications through the Tech specs tab. Each
+   model also has a lazy-loaded Video view. Leaving it must unload the YouTube
+   player so hidden audio stops.
 10. **The comparison table must not scroll sideways on phones.** Its mobile
     layout puts the characteristic across the row and the Drum / Typhoon values
     in two columns underneath. Do not restore a fixed table width there.

@@ -151,16 +151,16 @@ over it.
 ## Model detail navigation
 
 Each model has four views in the right-hand panel: Overview, Tech specs,
-Fit & setup and Video. Tabs and arrow buttons switch between them on desktop.
+Fit & setup and Video. The four labelled tabs switch between them on desktop.
 A deliberate horizontal swipe does the same on a phone, while vertical touch
-movement stays with the page. The mouse wheel is never converted into
-horizontal movement.
+movement stays with the page. There are no duplicate previous/next arrow
+controls, and the mouse wheel is never converted into horizontal movement.
 
-The Overview has the same two-path sales logic as the main site. “I’m Ready to
-Discuss the Details” opens the real lead form with the current model already
-selected. “I’m just exploring, let’s dive in” keeps the visitor in the model
-chapter and opens Tech specs. All labels, model copy, specifications and CTA
-wording remain in `js/content.js`.
+The Overview has one sales action. “I’m Ready to Discuss the Details” opens the
+real lead form with the current model already selected. Visitors who want more
+information use the clearly labelled Tech specs, Fit & setup or Video tabs.
+All labels, model copy, specifications and CTA wording remain in
+`js/content.js`.
 
 The Video view uses the YouTube ID, direct link, title and note stored on that
 model in `js/content.js`. The preview image loads only when the visitor opens

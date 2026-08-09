@@ -318,9 +318,6 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
                       data-lead-model="${m.name}" data-source-section="model_overview">
                 ${MODEL_UI.readyLabel}
               </button>
-              <button class="model-explore-link" type="button" data-model-explore>
-                ${MODEL_UI.exploreLabel}
-              </button>
             </div>
           </section>
 
@@ -388,19 +385,15 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
         </div>
 
         <div class="model-view-footer mono" data-rise>
-          <button class="model-view-arrow" type="button" data-model-view-prev
-                  aria-label="${MODEL_UI.previousViewLabel}"><span aria-hidden="true">←</span></button>
           <span class="model-view-status" aria-live="polite">01 / ${String(MODEL_UI.tabs.length).padStart(2, '0')} · ${MODEL_UI.tabs[0].label}</span>
-          <button class="model-view-arrow" type="button" data-model-view-next
-                  aria-label="${MODEL_UI.nextViewLabel}"><span aria-hidden="true">→</span></button>
         </div>
       </div>
     </div>
   </section>`;
 }).join('');
 
-/* Vertical scroll changes the model. Tabs, arrows and a deliberate phone
-   swipe change the information shown for that model. The mouse wheel is never
+/* Vertical scroll changes the model. Tabs and a deliberate phone swipe change
+   the information shown for that model. The mouse wheel is never
    remapped horizontally, so reading a specification cannot rotate the roaster
    instead of scrolling the text. */
 $$('.chapter').forEach(ch => {
@@ -474,18 +467,6 @@ $$('.chapter').forEach(ch => {
       e.preventDefault();
       showView(tabs[next].dataset.modelTab, { focusTab: true, source: 'keyboard' });
     });
-  });
-
-  $('[data-model-explore]', ch).addEventListener('click', () => {
-    showView('specs', { focusTab: true, source: 'explore' });
-  });
-  $('[data-model-view-prev]', ch).addEventListener('click', () => {
-    const next = (activeIndex - 1 + MODEL_UI.tabs.length) % MODEL_UI.tabs.length;
-    showView(MODEL_UI.tabs[next].key, { source: 'arrow' });
-  });
-  $('[data-model-view-next]', ch).addEventListener('click', () => {
-    const next = (activeIndex + 1) % MODEL_UI.tabs.length;
-    showView(MODEL_UI.tabs[next].key, { source: 'arrow' });
   });
 
   videoPlay.addEventListener('click', () => {
