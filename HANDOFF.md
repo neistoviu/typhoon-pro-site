@@ -94,8 +94,10 @@ the short list.
    mouse wheel.** Vertical scroll must keep changing the model. The overview has
    one primary button, which opens the lead form with that model selected.
    Visitors open technical specifications through the Tech specs tab. Each
-   model also has a lazy-loaded Video view. Leaving it must unload the YouTube
-   player so hidden audio stops.
+   model also has a lazy-loaded Video view. The right-hand panel must stay
+   top-aligned so the model heading and tabs do not jump between views of
+   different heights. Leaving Video must unload the YouTube player so hidden
+   audio stops.
 10. **The comparison table must not scroll sideways on phones.** Its mobile
     layout puts the characteristic across the row and the Drum / Typhoon values
     in two columns underneath. Do not restore a fixed table width there.

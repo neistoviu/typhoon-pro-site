@@ -454,7 +454,7 @@ body.menu-open,body.modal-open{overflow:hidden}
 
 .chapter-inner{
   position:sticky;top:0;min-height:100dvh;
-  display:grid;align-items:center;
+  display:grid;align-items:start;
   grid-template-columns:1fr 1fr;
   gap:clamp(20px,4vw,64px);
   padding:clamp(84px,11vh,128px) var(--pad) clamp(32px,5vh,64px);
@@ -476,7 +476,7 @@ body.menu-open,body.modal-open{overflow:hidden}
 }
 
 .chapter-panel{
-  display:grid;gap:clamp(11px,1.7vh,24px);align-content:center;
+  display:grid;gap:clamp(11px,1.7vh,24px);align-content:start;
   max-width:520px;min-width:0;
 }
 

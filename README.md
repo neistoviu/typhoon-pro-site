@@ -155,6 +155,8 @@ Fit & setup and Video. The four labelled tabs switch between them on desktop.
 A deliberate horizontal swipe does the same on a phone, while vertical touch
 movement stays with the page. There are no duplicate previous/next arrow
 controls, and the mouse wheel is never converted into horizontal movement.
+The panel is aligned to the top of the sticky chapter, so its model label,
+heading and tab row do not jump when views with different heights are selected.
 
 The Overview has one sales action. “I’m Ready to Discuss the Details” opens the
 real lead form with the current model already selected. Visitors who want more
