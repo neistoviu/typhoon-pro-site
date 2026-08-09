@@ -109,10 +109,12 @@ the short list.
     in two columns underneath. Do not restore a fixed table width there.
 11. **The mobile hero video plays once.** It is muted, inline and deliberately
     has no `loop`; the browser holds its last frame. The current MP4 is already
-    encoded 1.5 times slower. Its poster must remain a frame from that same
-    video, otherwise the old machine photograph flashes before playback. Its
-    source, poster, transition colour, mobile media query and crop position live
-    in `SITE.mobileHeroVideo`. Desktop keeps the existing hero photograph, and
+    encoded 1.5 times slower. Keep the current 1920 × 1080 quality: the former
+    960 × 540, 360 KB version made the thin title and moving beans visibly soft
+    on a full-screen phone. Its poster must remain a frame from that same video,
+    otherwise the old machine photograph flashes before playback. Its source,
+    poster, transition colour, mobile media query and crop position live in
+    `SITE.mobileHeroVideo`. Desktop keeps the existing hero photograph, and
     reduced-motion keeps the portrait photograph.
 12. **Dimension drawings are local assets.** Each model owns two files under
     `MODELS[].dimensionDrawings`, and its `Dimensions` value is a normal spec

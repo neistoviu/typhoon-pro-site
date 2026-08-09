@@ -201,12 +201,14 @@ lighting put them, where a flat multiply would blow them out. To regenerate
 from a new render, that recipe is a few lines of Pillow — gamma 1.20,
 brightness 1.06, saturation 1.04.
 
-Phones replace that photograph with `img/hero/air-roasting-mobile-v2.mp4`.
-The lightweight H.264 file is encoded 1.5 times slower than the source, autoplays
-muted and inline once, then remains on its last frame. Its 360 KB payload is
-smaller than the previous 1.1 MB version. The fallback poster is the film's own
-first frame, and the unrelated portrait photograph is hidden while video is
-enabled, so a slow connection cannot flash the wrong image before playback.
+Phones replace that photograph with `img/hero/air-roasting-mobile-v3.mp4`.
+The 1920 × 1080 H.264 file is encoded 1.5 times slower than the source, autoplays
+muted and inline once, then remains on its last frame. Its roughly 2.5 MB
+payload deliberately preserves the thin title and moving coffee detail; the
+earlier 960 × 540, 360 KB encode was visibly over-compressed on a full-screen
+phone. The fallback poster is the film's own first frame, and the unrelated
+portrait photograph is hidden while video is enabled, so a slow connection
+cannot flash the wrong image before playback.
 The film owns 76% of the first mobile viewport and fades into a dark stage for
 white copy. Reduced-motion visitors keep the portrait photograph. The file
 path, same-frame poster, transition colour, media query and crop position all
