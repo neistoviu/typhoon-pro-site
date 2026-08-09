@@ -272,13 +272,17 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
   </section>`;
 }).join('');
 
-/* Only one spec group open at a time, per chapter — the panel is fixed
-   height on desktop and three open groups would overflow it. */
+/* Only one spec group opens at a time. On short desktop windows an expanded
+   panel gets its own scroll area so page scroll can no longer hide the lower
+   rows behind the sticky 3D chapter. */
 $$('.chapter').forEach(ch => {
   const all = $$('details', ch);
+  const syncOpenState = () => ch.classList.toggle('specs-open', all.some(d => d.open));
   all.forEach(d => d.addEventListener('toggle', () => {
     if (d.open) all.forEach(o => { if (o !== d) o.open = false; });
+    requestAnimationFrame(syncOpenState);
   }));
+  syncOpenState();
 });
 
 /* ════════════════════════════════════════════════════ COLOUR PRESETS ════ */
