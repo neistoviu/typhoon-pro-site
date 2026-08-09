@@ -288,13 +288,16 @@ $('#lineup').innerHTML = MODELS.map((m, i) => {
   const price = m.price
     ? `<div class="price-tag"><span class="p">${m.price}</span><span class="n">${m.priceNote}</span></div>`
     : `<div class="price-tag"><span class="p">${MODEL_UI.priceOnRequest}</span><span class="n">${m.priceNote}</span></div>`;
+  const rotateAriaLabel = MODEL_UI.rotateAriaLabel.replace('{model}', m.name);
 
   return `
   <section class="chapter" id="m-${m.key}" data-model="${m.key}">
     <div class="chapter-inner">
       <div class="chapter-stage">
-        <div class="chapter-void"></div>
+        <div class="chapter-void" tabindex="0" role="group"
+             aria-label="${rotateAriaLabel}"></div>
         <p class="model-load-status mono" aria-live="polite">${MODEL_UI.loading3d}</p>
+        <p class="model-rotate-hint mono" aria-hidden="true">${MODEL_UI.rotateHint}</p>
         <div class="presets" data-rise>
           <span class="presets-label mono">${MODEL_UI.colourLabel}</span>
           <div class="swatches" role="group" aria-label="${MODEL_UI.colourGroupLabel}">${swatches}</div>

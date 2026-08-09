@@ -496,7 +496,13 @@ body.menu-open,body.modal-open{overflow:hidden}
   align-self:stretch;display:flex;flex-direction:column;
   gap:clamp(14px,2vh,26px);min-width:0;position:relative;
 }
-.chapter-void{flex:1;min-height:0;position:relative;display:grid;place-items:center}
+.chapter-void{
+  flex:1;min-height:0;position:relative;display:grid;place-items:center;
+  touch-action:pan-y;cursor:grab;
+}
+.chapter-void.is-rotating{cursor:grabbing}
+.chapter-void:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.model-rotate-hint{display:none}
 .model-load-status{
   position:absolute;z-index:1;left:50%;top:45%;transform:translate(-50%,-50%);
   font-size:10px;letter-spacing:.12em;text-transform:uppercase;
@@ -718,6 +724,14 @@ body.menu-open,body.modal-open{overflow:hidden}
      while the address bar collapses, or the machine jumps every time the
      scroll direction changes. */
   .chapter-void{flex:none;height:40svh}
+  .model-rotate-hint{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    color:var(--ink-soft);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    transition:opacity .3s var(--ease);
+  }
+  .model-rotate-hint::before{content:'←'}
+  .model-rotate-hint::after{content:'→'}
+  .model-rotate-hint.used{opacity:0}
   .chapter-panel{max-width:none}
   .chapter.specs-open .chapter-panel,
   .chapter.fit-open .chapter-panel{

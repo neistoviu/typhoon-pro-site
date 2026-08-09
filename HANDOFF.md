@@ -75,8 +75,12 @@ the short list.
    chapter showing the cyclone is the most obvious thing that can be wrong.
    `__typhoon.setFront(deg)` in the console dials it in live.
 3. **Phones are deliberately different.** The canvas must not be sized in
-   `dvh`, `.chapter-void` is `svh`, and rotation runs on time rather than
-   scroll when `view.narrow`. Undoing any of the three brings back the judder.
+   `dvh`, `.chapter-void` is `svh`, and rotation is manual rather than tied to
+   scroll or a shared timer when `view.narrow`. The box uses `touch-action:
+   pan-y`, so vertical gestures keep scrolling while horizontal gestures turn
+   the machine. Its position has a short mobile-only filter to hide stepped
+   momentum-scroll coordinates, and the phone pixel ratio is capped at 1.35.
+   Undoing these brings back the judder.
 4. **Machines are fitted on their rotation-safe radius**, `hypot(x, z)`, not
    their front-on width — otherwise a machine grows into the copy halfway
    through its turn.
@@ -120,6 +124,10 @@ the short list.
     mobile browsers and clips a nested menu to the header height. `#mobileMenu`
     is deliberately a sibling of `.nav`, with its own viewport-level layer and
     safe-area padding.
+14. **Model scale is intentional and editable.** `MODELS[].displayScale` keeps
+    the 2.5 PRO at 1, the 5 PRO at 1.1 and the physically largest 10 PRO at
+    1.22. The rotation-safe fit remains the base; do not remove the multiplier
+    and make the 10 PRO look smallest again.
 
 ## Open items
 

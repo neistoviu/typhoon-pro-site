@@ -69,6 +69,8 @@ export const MODEL_UI = {
   quoteLabel: 'Get pricing & specs',
   loading3d: 'Loading 3D preview',
   unavailable3d: '3D preview unavailable. Specifications remain available.',
+  rotateHint: 'Swipe to rotate',
+  rotateAriaLabel: 'Interactive 3D model of {model}. Swipe horizontally or use the arrow keys to rotate it.',
 };
 
 /* Paint.
@@ -80,6 +82,9 @@ export const MODEL_UI = {
    Omit `paint` (or set it to null) to keep the factory ivory/vermilion.
    The `*Name` fields are documentation for whoever edits this next. */
 
+/* `displayScale` is a visual multiplier after the geometry has been fitted
+   safely into its chapter. It preserves the obvious size order on screen:
+   2.5 PRO < 5 PRO < 10 PRO. */
 export const MODELS = [
   {
     key: '2pro',
@@ -87,9 +92,9 @@ export const MODELS = [
     file: 'models/typhoon-2pro.glb',
     batch: '0.3 – 2.5 kg',
     replaces: 'Replaces a 5 kg drum',
-    /* Physical height in metres — used only to keep the three machines
-       to true relative scale in the opening line-up. */
+    /* Physical height in metres, retained with the model data for reference. */
     realHeight: 1.55,
+    displayScale: 1,
     paint: null,               // factory ivory + vermilion
     price: null,               // e.g. '€24,900'
     priceNote: 'Ex-works Prague · shipping quoted separately',
@@ -164,6 +169,7 @@ export const MODELS = [
     batch: '0.6 – 5 kg',
     replaces: 'Replaces a 10 kg drum',
     realHeight: 1.85,
+    displayScale: 1.1,
     paint: {
       body:   '#2F4538', bodyName:   'RAL 6005 Moss green',
       accent: '#E1A100', accentName: 'RAL 1004 Golden yellow',
@@ -241,6 +247,7 @@ export const MODELS = [
     batch: '5 – 10 kg',
     replaces: 'Replaces a 20 kg drum',
     realHeight: 2.15,
+    displayScale: 1.22,
     paint: {
       body:   '#154889', bodyName:   'RAL 5005 Signal blue',
       accent: '#F4F4F4', accentName: 'RAL 9003 Signal white',

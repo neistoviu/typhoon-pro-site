@@ -139,9 +139,12 @@ Three details worth keeping:
   their front-on width. A machine turning through 360° is widest on the
   diagonal, and fitting the narrow face means it grows into the copy halfway
   through the turn.
-- **Position and scale are locked to the box with no damping.** The machine is
-  part of the page; a damped position lags the scroll and reads as drift. Only
-  the turn is smoothed.
+- **Desktop position stays locked to the box.** On phones, a very short
+  mobile-only position filter hides the stepped coordinates produced by
+  momentum scrolling without visibly detaching the machine from its block.
+- **`MODELS[].displayScale` preserves the size hierarchy.** The rotation-safe
+  fit is still the base, then 5 PRO and 10 PRO receive deliberate multipliers
+  so the largest machine does not look like the smallest one.
 
 Chapters are `240dvh` tall with a sticky inner panel; that extra height is the
 scroll budget the machine turns through. The canvas is only drawn while a
@@ -229,11 +232,14 @@ are easy to undo by accident:
 - **`.chapter-void` is `40svh`, not `40dvh`.** It is the box the machine is
   fitted into; in `dvh` it changed size whenever the address bar moved, and the
   machine jumped with it. `svh` does not move.
-- **Rotation runs on time, not on scroll, when `view.narrow`.** Momentum
-  scrolling reports position in coarse irregular jumps and a rotation sampled
-  from it inherits every one — the page glides while the machine stutters. On
-  desktop the chapter is pinned, the machine only turns, and scroll is a fine
-  clock for that; on a phone it is not.
+- **Rotation is manual when `view.narrow`.** Each machine arrives at the front
+  angle and a horizontal swipe over the empty model box turns it; vertical
+  movement remains normal page scroll. This replaces the shared timer that
+  could make the next machine appear with its back already facing the visitor.
+- **Phone position is filtered, not the scroll itself.** Momentum scrolling
+  reports element coordinates in coarse steps, so `scene.js` applies a short
+  low-lag filter to the model position and snaps it on first appearance. The
+  renderer pixel ratio is capped at 1.35 to leave more frame time for the 3D.
 - **The comparison does not scroll sideways.** On phones each characteristic
   spans the row, with the Drum and Typhoon values in two columns underneath.
   The semantic table stays intact; CSS only changes its visual layout.
@@ -241,7 +247,7 @@ are easy to undo by accident:
 The viewport is measured from **the canvas**, not from `innerWidth`, and
 watched with a `ResizeObserver` — same box `getBoundingClientRect()` reports
 against, and it fires on the first layout, which a `resize` event never does.
-Pixel ratio is capped at 1.6 on phones.
+Pixel ratio is capped at 1.35 on phones.
 
 ---
 

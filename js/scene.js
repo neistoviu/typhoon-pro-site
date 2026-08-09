@@ -1,9 +1,9 @@
 /* ---------------------------------------------------------------------------
    The machines.
 
-   One fixed canvas behind the page. Three models, loaded once, moved by
-   scroll: a line-up across the opening screen, then a horizontal carousel
-   that brings each machine forward for its own chapter and turns it.
+   One fixed canvas behind the page. Three models, loaded once and each kept
+   inside its own product chapter. Desktop scroll turns them; on phones a
+   horizontal gesture turns the model while vertical movement scrolls the page.
 
    The canvas only ever shows through the hero, the pillars and the three
    chapters — every section after that paints its own background over it.
@@ -188,8 +188,9 @@ function load(m, i) {
       rigs[i] = {
         rig, spin, key: m.key, groups,
         size,
+        displayScale: m.displayScale || 1,
         /* damped state */
-        x: 0, y: 0, s: 0.001, rot: FRONT,
+        x: 0, y: 0, s: 0.001, rot: FRONT, positionReady: false,
       };
 
       resolve();
@@ -236,7 +237,7 @@ function resize() {
   /* Phones do not need two device pixels per CSS pixel across half a million
      triangles — the dropped frames read as judder long before the extra
      sharpness reads as quality. */
-  renderer.setPixelRatio(Math.min(devicePixelRatio, view.narrow ? 1.6 : 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, view.narrow ? 1.35 : 2));
   renderer.setSize(w, h, false);
 
   view.visH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
@@ -266,6 +267,80 @@ addEventListener('orientationchange', () => { view.w = 0; resize(); });
    orientation, and a machine that spends its whole chapter showing the
    cyclone is the most obvious thing that can be wrong here. */
 let FRONT = FRONT_DEG * Math.PI / 180;
+
+/* The model stage owns horizontal rotation gestures. It remains empty — the
+   canvas is still measured against that box — but the box itself is the input
+   surface. `touch-action: pan-y` leaves vertical page scrolling with the
+   browser and hands deliberate horizontal movement to the model. */
+const turns = MODELS.map(() => ({ angle: 0, velocity: 0, dragging: false }));
+const ROTATE_PER_PX = 0.012;
+
+voidEls.forEach((elem, i) => {
+  if (!elem) return;
+  const turn = turns[i];
+  const hint = chapterEls[i].querySelector('.model-rotate-hint');
+  let gesture = null;
+
+  const finish = (keepVelocity = true) => {
+    if (!gesture) return;
+    if (!keepVelocity) turn.velocity = 0;
+    turn.dragging = false;
+    elem.classList.remove('is-rotating');
+    gesture = null;
+  };
+
+  elem.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    gesture = {
+      id: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      lastX: e.clientX,
+      lastTime: e.timeStamp,
+      base: turn.angle,
+      axis: '',
+    };
+    turn.velocity = 0;
+  });
+
+  elem.addEventListener('pointermove', e => {
+    if (!gesture || e.pointerId !== gesture.id) return;
+    const dx = e.clientX - gesture.x;
+    const dy = e.clientY - gesture.y;
+
+    if (!gesture.axis) {
+      if (Math.hypot(dx, dy) < 8) return;
+      gesture.axis = Math.abs(dx) > Math.abs(dy) * 1.15 ? 'x' : 'y';
+      if (gesture.axis === 'y') { finish(false); return; }
+      turn.dragging = true;
+      elem.classList.add('is-rotating');
+      hint?.classList.add('used');
+      elem.setPointerCapture?.(e.pointerId);
+    }
+
+    if (gesture.axis !== 'x') return;
+    e.preventDefault();
+    turn.angle = gesture.base + dx * ROTATE_PER_PX;
+    const elapsed = Math.max(8, e.timeStamp - gesture.lastTime) / 1000;
+    turn.velocity = THREE.MathUtils.clamp(
+      ((e.clientX - gesture.lastX) * ROTATE_PER_PX) / elapsed, -3.2, 3.2);
+    gesture.lastX = e.clientX;
+    gesture.lastTime = e.timeStamp;
+  });
+
+  elem.addEventListener('pointerup', e => {
+    if (gesture && e.pointerId === gesture.id) finish(true);
+  });
+  elem.addEventListener('pointercancel', () => finish(false));
+
+  elem.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    turn.velocity = 0;
+    turn.angle += (e.key === 'ArrowLeft' ? -1 : 1) * Math.PI / 12;
+    hint?.classList.add('used');
+  });
+});
 
 /* Machines are fitted into the empty `.chapter-void` block the layout
    reserves for them — measured, not guessed. That is what keeps them out of
@@ -303,13 +378,11 @@ function choreograph() {
 
 function layout(dt) {
   const mid = view.h * 0.5;
-  spinClock += dt;
 
   rigs.forEach((r, i) => {
     if (!r) return;
 
     const slot = slotOf(voidEls[i]);
-    const ch = chapterEls[i].getBoundingClientRect();
 
     /* Rotation.
 
@@ -317,30 +390,49 @@ function layout(dt) {
        is pinned there, so the machine is standing still and only turning —
        scroll is a perfectly good clock for that.
 
-       Phones: driven by time instead. Momentum scrolling delivers position in
-       coarse, irregular jumps, and a rotation sampled from it inherits every
-       one of them — the machine visibly stutters even when the page itself is
-       gliding. A constant turn is smooth by construction and cannot fall out
-       of step with a scroll it no longer listens to. */
-    const spin = clamp01((mid - ch.top) / Math.max(1, ch.height));
+       Phones: every machine starts at FRONT and turns only from a horizontal
+       gesture. A shared timer used to make a newly reached model appear at an
+       arbitrary angle, often with its back towards the visitor. */
+    let spin = 0;
+    if (!view.narrow) {
+      const ch = chapterEls[i].getBoundingClientRect();
+      spin = clamp01((mid - ch.top) / Math.max(1, ch.height));
+    }
+    const turn = turns[i];
+    if (!turn.dragging && Math.abs(turn.velocity) > 0.002) {
+      turn.angle += turn.velocity * dt;
+      turn.velocity *= Math.exp(-dt * 4.8);
+    }
     const tRot = view.narrow
-      ? FRONT + spinClock * 0.34
-      : FRONT + ease(spin) * TAU;
+      ? FRONT + turn.angle
+      : FRONT + ease(spin) * TAU + turn.angle;
 
     /* Fitted on the rotation-safe radius, not the front-on width, so a
        machine never grows into the copy halfway through its turn. */
     const fit = Math.min(slot.w / Math.hypot(r.size.x, r.size.z),
-                         slot.h / r.size.y);
+                         slot.h / r.size.y) * r.displayScale;
 
-    /* Position and size are locked to the box with no damping: the machine
-       is part of the page, and a lagging position reads as drift during a
-       fast scroll. Only the turn is smoothed. */
-    r.x = slot.x;
-    r.y = slot.y;
+    /* Mobile momentum scroll updates element geometry in small steps. A short
+       position filter removes those steps while staying close enough to the
+       reserved box that the machine still reads as part of the page. Snap on
+       first appearance so a model never floats in from an old chapter. */
+    const visible = slot.bottom > -60 && slot.top < view.h + 60;
+    if (!visible) {
+      r.rig.visible = false;
+      r.positionReady = false;
+      return;
+    }
+    const posK = view.narrow ? 1 - Math.exp(-dt * 24) : 1;
+    if (!r.positionReady) {
+      r.x = slot.x;
+      r.y = slot.y;
+      r.positionReady = true;
+    } else {
+      r.x += (slot.x - r.x) * posK;
+      r.y += (slot.y - r.y) * posK;
+    }
     r.s = fit;
-    /* A time-driven turn is already smooth, and damping it would only add
-       lag; the scroll-driven one is smoothed because scroll is not. */
-    const k = (reduced || view.narrow) ? 1 : 1 - Math.exp(-dt * 11);
+    const k = reduced ? 1 : 1 - Math.exp(-dt * (view.narrow ? 22 : 11));
     r.rot += (tRot - r.rot) * k;
 
     r.rig.position.set(r.x, r.y, 0);
@@ -348,13 +440,13 @@ function layout(dt) {
     r.spin.rotation.y = r.rot;
 
     /* Drawn only while its own block is on screen. */
-    r.rig.visible = slot.bottom > -60 && slot.top < view.h + 60;
+    r.rig.visible = true;
   });
 }
 
 /* ══════════════════════════════════════════════════════════ loop ═══════ */
 
-let last = 0, running = true, spinClock = 0;
+let last = 0, running = true;
 
 /* Nothing below the last chapter shows the canvas, so nothing below it needs
    to be drawn. */
@@ -421,9 +513,10 @@ if ('IntersectionObserver' in window) {
 
 /* Console handle for visual tuning and diagnostics. */
 window.__typhoon = {
-  scene, camera, renderer, rigs, view, choreograph, loadModel: loadOne,
+  scene, camera, renderer, rigs, turns, view, choreograph, loadModel: loadOne,
   setFront(deg) {
     FRONT = deg * Math.PI / 180;
+    turns.forEach(turn => { turn.angle = 0; turn.velocity = 0; });
     rigs.forEach(r => { if (r) r.rot = FRONT; });
     return `FRONT_DEG = ${deg}`;
   },
