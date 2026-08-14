@@ -1,12 +1,13 @@
-# Typhoon PRO — product site
+# Typhoon PRO product site
 
 A standalone page for the three PRO machines only: **2.5 PRO, 5 PRO, 10 PRO**.
 The 20 and 30 kg machines have no local product sections. They remain outbound
 links to their own pages on [typhoon.coffee](https://typhoon.coffee) in the
 menu, footer and out-of-range finder result.
 
-Static HTML, CSS and JavaScript on Three.js. No build step, no framework, no
-bundler — the same shape as `typhoon-configurator/`.
+The product site itself is static HTML, CSS and JavaScript on Three.js. The
+repository also includes a small deployment wrapper for local development,
+production builds and the lead form endpoint.
 
 ---
 
@@ -15,15 +16,15 @@ bundler — the same shape as `typhoon-configurator/`.
 | File | What it is |
 |------|-----------|
 | `index.html` | The page skeleton. Repeating blocks are filled in by `js/ui.js` |
-| `js/content.js` | **Everything editable** — copy, specs, prices, software cards, contacts |
+| `js/content.js` | **Everything editable**: copy, specs, prices, software cards, contacts |
 | `js/scene.js` | Three.js: loads the models and moves them with the scroll |
 | `js/ui.js` | Builds the page from `content.js`, scroll reveals, spec disclosures, the auto-repeat animation |
 | `css/style.css` | All styling |
 | `models/*.glb` | The three machines, ~1 MB each |
-| `img/hero/*.webp` | Opening image — separate desktop and mobile crops |
+| `img/hero/*.webp` | Opening image: separate desktop and mobile crops |
 | `img/try/*.webp` | Photographs for the three "before you commit" cards |
 | `img/clients/*.webp` | Client logos and photographs, pulled from typhoon.coffee |
-| `js/calculator.js` | Savings calculator — arithmetic ported from `typhoon-roi-calculator/` |
+| `js/calculator.js` | Self-contained savings calculator and its verified assumptions |
 | `worker/index.ts` | Static assets plus the same-origin `/api/lead` form relay |
 | `thank-you.html` | Form success route, populated from `js/content.js` |
 | `img/logo.svg` | Wordmark, ink-coloured, inverted by CSS on the dark section |
@@ -31,10 +32,10 @@ bundler — the same shape as `typhoon-configurator/`.
 **To change wording, numbers or prices, edit `js/content.js`.** Nothing else
 needs touching for a content change.
 
-Everything from `package.json` down — `app/`, `build/`, `worker/`,
-`next.config.ts`, `scripts/prepare-static.mjs`, `_headers`, `.openai/` — is a
-deployment wrapper added separately, not part of the site. It copies
-`css/ img/ js/ models/ index.html thank-you.html` into `public/` and changes none of them.
+The files under `app/`, `build/`, `worker/`, `scripts/` and `.openai/`, along
+with the root build configuration, form the deployment wrapper. It copies
+`css/`, `img/`, `js/`, `models/`, `index.html` and `thank-you.html` into
+`public/` without changing them.
 
 ---
 
@@ -42,15 +43,15 @@ deployment wrapper added separately, not part of the site. It copies
 
 | Section | id | Built by |
 |---------|-----|---------|
-| Hero — photograph, headline, badges | `#hero` | `HERO` |
-| Model finder — two questions, one recommendation, three ways in | `#finder` | `QUIZ` + `NEXT` |
-| Three machine chapters — 3D, specs, colour presets | `#lineup` | `MODELS` + `PRESETS` |
+| Hero: photograph, headline, badges | `#hero` | `HERO` |
+| Model finder: two questions, one recommendation, three ways in | `#finder` | `QUIZ` + `NEXT` |
+| Three machine chapters: 3D, specs, colour presets | `#lineup` | `MODELS` + `PRESETS` |
 | Client references and model filters | `#clients` | `CLIENTS` |
 | Comparison against a drum | `#compare` | `COMPARE` |
 | Savings calculator | `#calc` | `CALCULATOR` + `js/calculator.js` |
-| Software — the auto-repeat explainer and feature grid | `#software` | `SOFTWARE` |
+| Software: the auto-repeat explainer and feature grid | `#software` | `SOFTWARE` |
 | Service and onboarding | `#service` | `SERVICE` |
-| Before you commit — samples, online session, showroom | `#try` | `TRY` |
+| Before you commit: samples, online session, showroom | `#try` | `TRY` |
 | FAQ | `#faq` | `FAQ` |
 | Contact and real lead form | `#contact` | `CTA` + `FORM` |
 
@@ -58,14 +59,15 @@ deployment wrapper added separately, not part of the site. It copies
 
 ## Running it locally
 
-Do not open `index.html` from the file system — the models are fetched over
-HTTP and `file://` will block them.
+Install the dependencies and start the local development server:
 
 ```bash
-npx serve "typhoon-pro-site" -l 8790
+npm ci
+npm run dev
 ```
 
-Then open <http://localhost:8790>.
+Use the local URL printed in the terminal. Do not open `index.html` directly
+from the file system because `file://` blocks the 3D model requests.
 
 ---
 
@@ -80,7 +82,7 @@ price: '€24,900',
 priceNote: 'Ex-works Prague · shipping quoted separately',
 ```
 
-Nothing else changes — the layout is the same either way. They were left empty
+Nothing else changes: the layout is the same either way. They were left empty
 on purpose: there is no verified public PRO price list to publish from, and a
 made-up number on a public page is worse than an ask.
 
@@ -88,9 +90,9 @@ made-up number on a public page is worse than an ask.
 
 ## The models
 
-Copied from `typhoon-configurator/dist-baked/`. The default paint (RAL 1015
+The committed GLB files are ready for the site. The default paint (RAL 1015
 ivory body, RAL 2002 vermilion accent) and every fixed-colour part are baked
-in, so they need no config file and no recolouring code.
+in, so they need no config file or recolouring code.
 
 | File | Size |
 |------|------|
@@ -99,10 +101,11 @@ in, so they need no config file and no recolouring code.
 | `typhoon-2pro.glb` | 968 KB |
 
 Geometry is Draco-compressed, so the decoder is loaded from the CDN alongside
-Three.js. To regenerate them after a CAD or colour change, follow
-`typhoon-configurator/dist-baked/README.md`, then copy the three files here.
+Three.js. After a CAD or colour change, export a Draco-compressed GLB with the
+same baked materials, add it to `models/` and update its filename in
+`js/content.js`.
 
-**A changed model must be given a new filename** — `vercel.json` marks
+**A changed model must be given a new filename**: `vercel.json` marks
 `/models/*` immutable for a year, so browsers will otherwise keep serving the
 old one.
 
@@ -118,11 +121,11 @@ and phone download light without changing the choreography.
 opening line-up and no carousel: a machine rises into view with its section,
 turns while that section is pinned, and leaves upward as the next arrives.
 Scroll back and it returns exactly the way it left, because none of this is
-animation state — position, size and angle are all functions of where the page
+animation state: position, size and angle are all functions of where the page
 is. An earlier version slid the machines sideways between chapters and that
 read as them crawling away whenever you scrolled back up.
 
-The layout — not the script — decides where a machine goes. Each chapter
+The layout, not the script, decides where a machine goes. Each chapter
 reserves an empty `.chapter-void` block: the left column of the sticky split on
 desktop, a full-width block above the copy on narrow screens. `scene.js`
 measures it with `getBoundingClientRect()` and fits the machine inside. Move
@@ -130,7 +133,7 @@ the block in CSS and the machine follows.
 
 Three details worth keeping:
 
-- **`FRONT` is the start and end angle** of every turn — door, screen and
+- **`FRONT` is the start and end angle** of every turn: door, screen and
   control panel towards the viewer, swung a little off dead-on. **Check it by
   eye after any model re-export.** The baked files carry their own
   orientation, and a machine that spends its whole chapter showing the cyclone
@@ -148,7 +151,7 @@ Three details worth keeping:
 
 Chapters are `240dvh` tall with a sticky inner panel; that extra height is the
 scroll budget the machine turns through. The canvas is only drawn while a
-chapter is on screen — every section above and below paints its own background
+chapter is on screen: every section above and below paints its own background
 over it.
 
 ## Model detail navigation
@@ -161,7 +164,7 @@ controls, and the mouse wheel is never converted into horizontal movement.
 The panel is aligned to the top of the sticky chapter, so its model label,
 heading and tab row do not jump when views with different heights are selected.
 
-The Overview has one sales action. “I’m Ready to Discuss the Details” opens the
+The Overview has one sales action. "I'm Ready to Discuss the Details" opens the
 real lead form with the current model already selected. Visitors who want more
 information use the clearly labelled Tech specs, Fit & setup or Video tabs.
 All labels, model copy, specifications and CTA wording remain in
@@ -190,7 +193,7 @@ machines now appear one at a time, in their own chapters, once a visitor is
 already reading about them.
 
 It is art-directed rather than resized. `img/hero/cafe-desktop.webp` keeps the
-wide frame — machine on the left, copy in the dark half on the right — and
+wide frame, with the machine on the left and copy in the dark half on the right.
 `cafe-hero-mobile.webp` is a separate 4:5 crop around the machine, because that
 composition has no room on a phone. A `<picture>` element picks between them at
 760 px.
@@ -198,7 +201,7 @@ composition has no room on a phone. A `<picture>` element picks between them at
 Both were lifted out of the original render with a gamma curve rather than a
 brightness multiply: gamma opens the shadows and leaves the lamps where the
 lighting put them, where a flat multiply would blow them out. To regenerate
-from a new render, that recipe is a few lines of Pillow — gamma 1.20,
+from a new render, that recipe is a few lines of Pillow: gamma 1.20,
 brightness 1.06, saturation 1.04.
 
 Phones replace that photograph with `img/hero/air-roasting-mobile-v3.mp4`.
@@ -247,7 +250,7 @@ are easy to undo by accident:
   The semantic table stays intact; CSS only changes its visual layout.
 
 The viewport is measured from **the canvas**, not from `innerWidth`, and
-watched with a `ResizeObserver` — same box `getBoundingClientRect()` reports
+watched with a `ResizeObserver`: same box `getBoundingClientRect()` reports
 against, and it fires on the first layout, which a `resize` event never does.
 Pixel ratio is capped at 1.35 on phones.
 
@@ -256,7 +259,7 @@ Pixel ratio is capped at 1.35 on phones.
 ## Lighting
 
 A glTF carries geometry and materials, not lights. Without an environment the
-steel and glass render flat and grey — `RoomEnvironment` through a
+steel and glass render flat and grey: `RoomEnvironment` through a
 `PMREMGenerator` is what makes them read as metal.
 
 There is no shadow map. A shadow needs a catcher plane, and a grey plane on a
@@ -270,8 +273,8 @@ radial-gradient sprite under it instead.
 The dark software chapter draws a roast rather than describing one: the
 reference profile as a ghost line, the live roast tracking it, power and
 airflow on their own strip underneath, the stage bar advancing Prepare → Ready
-→ Loading → Roasting → Unloading → Cooling, and the batch counter climbing —
-which is the actual claim, that nothing has to cool down in between.
+→ Loading → Roasting → Unloading → Cooling, and the batch counter climbing.
+The sequence shows the actual claim: nothing has to cool down between batches.
 
 **Rate of rise is defined first and the bean curve is its integral**, not the
 other way round:
@@ -283,9 +286,9 @@ ror(s) = A · (1 − e^(−s/τ₁)) · e^(−s/τ₂)      s = minutes past the
 A rate that starts at zero, swells shortly after the turning point and decays
 towards the drop is what a roast does, and its integral is automatically the
 smooth S the bean curve is supposed to be. `A` is solved so the integral lands
-exactly on the drop temperature. Doing it the other way — draw a shape, then
-differentiate — is what produced the sharp corners in the first version: the
-turning point came out a V and the RoR a spike.
+exactly on the drop temperature. Drawing a shape first and differentiating it
+produced sharp corners in the first version: the turning point came out as a V
+and the RoR as a spike.
 
 Everything else on the chart is smooth for the same reason. Both halves of the
 bean curve meet the turning point with **zero slope**, so the minimum is a round
@@ -303,20 +306,21 @@ Roast length is 6:45 to the drop on a 7:30 axis, which is what the machine
 actually does. The numbers live at the top of the block in `js/ui.js`
 (`TP_T`, `FC_T`, `DROP_T`, `CHARGE`, `TP_C`, `END_C`, `POWER`, `FAN`).
 
-Two tabs, matching the two auto-repeat modes the software actually has: by
-power and by temperature. **Note:** `company-knowledge/product/software.md`
-still lists a third, "by events" — that page is out of date.
+Two tabs match the two auto-repeat modes the software currently supports: by
+power and by temperature.
 
 It runs only while on screen, and reduced-motion visitors get the finished
 roast with no loop.
 
 ## Deployment
 
-Static site on Vercel; project root is the output directory. `vercel.json` sets
-the immutable cache headers on `/models` and `/img`.
+The current production deployment is
+[typhoon-pro-roasters.neistoviu.chatgpt.site](https://typhoon-pro-roasters.neistoviu.chatgpt.site).
+The `.openai/hosting.json`, Vite and worker files are the deployment wrapper for
+that environment. Run `npm run build` before publishing changes.
 
-Suggested subdomain: `pro.typhoon.coffee`, linked from the main site's product
-section.
+`vercel.json` remains available for a static Vercel deployment and sets
+immutable cache headers on `/models` and `/img`.
 
 ---
 
@@ -328,7 +332,7 @@ section.
   headings; the complete model name still comes from `content.js`.
 - **Three.js and the Draco decoder come from jsDelivr.** Same caveat; vendor
   them into the repo if the CDN is not acceptable.
-- **`window.__typhoon`** is left in `scene.js` on purpose — it exposes the
+- **`window.__typhoon`** is left in `scene.js` on purpose: it exposes the
   scene, camera, rigs and the choreography function for tuning from the
   console. Harmless, but remove it if you would rather not ship it.
 
@@ -341,8 +345,8 @@ their options are the site's; the routing is `QUIZ.byVolume` / `QUIZ.byStatus`
 in `content.js`.
 
 **Weekly volume decides it. Status only breaks the tie** when someone has not
-picked a volume — which is most first-time visitors, and the reason the status
-question exists at all. The cut-offs come from real capacity over a 40-hour
+picked a volume. That applies to most first-time visitors and is why the status
+question exists. The cut-offs come from real capacity over a 40-hour
 week: 2.5 PRO 600 kg, 5 PRO 1200 kg, 10 PRO 2400 kg. Anything past that routes
 to `QUIZ.bigger`, which hands over to the main site rather than pretending a
 10 PRO covers 4,500 kg a week.
@@ -351,28 +355,25 @@ to `QUIZ.bigger`, which hands over to the main site rather than pretending a
 
 ## The FAQ
 
-`FAQ` in `content.js` — eight categories, tabbed, answers as native
+`FAQ` in `content.js`: eight categories, tabbed, answers as native
 `<details>` so the browser handles the open state, the keyboard and
 find-in-page.
 
-**Where the answers come from, because it is not one source:**
+The answers come from two verified sources:
 
 - **"Pricing & payment" is typhoon.coffee's wording**, verbatim.
-- **The other seven were written from `company-knowledge/`** —
-  `sales/objections.md`, `product/specs.md`, `product/software.md`,
-  `service/warranty.md`, `service/onboarding.md`, `product/models.md`. The
-  main site keeps those categories behind Framer tabs that only fetch their
-  content on a real click, and that could not be scraped; the knowledge base
-  is the same material our sales team quotes from, so the numbers agree.
+- **The other seven were written from verified Typhoon product, sales and
+  service material.** The final public copy is committed in `js/content.js`,
+  so the site does not depend on those source documents.
 
 If the exact site wording matters for a category, paste it over the entry in
-`FAQ.groups` — nothing else needs to change.
+`FAQ.groups`: nothing else needs to change.
 
 ---
 
 ## The clients block
 
-`CLIENTS` in `content.js` — names, countries and role badges taken from
+`CLIENTS` in `content.js`: names, countries and role badges taken from
 typhoon.coffee/clients. The logos and photographs were **downloaded and
 re-encoded into `img/clients/`** rather than hot-linked from the main site's
 CDN, so this page does not break when that site reorganises its assets. Nine
@@ -386,10 +387,9 @@ To swap one out: add `<key>.webp` (4:3) and `<key>-logo.webp` to
 
 ## The savings calculator
 
-**The arithmetic is the existing calculator, verbatim.** Every constant, every
-formula and every number on screen comes from
-`typhoon-roi-calculator/typhoon-roi-calculator.html` — it was not re-derived.
-It now lives in `js/calculator.js`.
+**The arithmetic is the verified Typhoon calculator implementation.** Every
+constant, formula and number used on screen now lives in `js/calculator.js`.
+The site does not load or import another project at runtime.
 
 Exactly two things changed in the logic:
 
@@ -399,14 +399,13 @@ Exactly two things changed in the logic:
   own page that was fine; on this one it renamed the whole tab every time a
   slider moved.
 
-**The design is this site's**, not the original's. The markup was re-written
-with `calc-` prefixed class names — the original used `.hero` and `.page`,
-which collide head-on with this page — and styled in the same system as
-everything else: Inter Tight and JetBrains Mono, the paper/ink palette, brand
-blue for the money, hairline rules instead of cards and shadows. No iframe: it
-is part of the page, so its type scale matches its neighbours.
+**The design is specific to this site.** The markup uses `calc-` prefixed class
+names because the earlier `.hero` and `.page` names collide with this page. It
+uses Inter Tight and JetBrains Mono, the paper and ink palette, brand blue for
+the money, and hairline rules instead of cards and shadows. The calculator is
+part of the page rather than an iframe, so its type scale matches its neighbours.
 
-Sanity check after any edit — at the defaults (10 kg, 6,500 kg/month, EUR) it
+Sanity check after any edit: at the defaults (10 kg, 6,500 kg/month, EUR) it
 must read **€5,451** total, **€1,470** labour, **€731** energy and **€3,250**
 defects. The conservative public estimate uses six Typhoon batches per hour.
 All editable assumptions and labels live under `CALCULATOR` in `content.js`.
@@ -421,10 +420,9 @@ All editable assumptions and labels live under `CALCULATOR` in `content.js`.
   covers the PRO range only; 20 and 30 kg live on the main site.
 - **Lead delivery needs one hosting secret.** Production must provide
   `LEAD_WEBHOOK_URL`. Never hard-code or commit the webhook URL.
-- **The FAQ mixes two sources.** "Pricing & payment" is typhoon.coffee's
-  wording verbatim; the other seven categories were written from
-  `company-knowledge/` because the main site keeps them behind Framer tabs that
-  only fetch on a real click. If exact parity matters, paste the site's wording
-  over the entry in `FAQ.groups`.
+- **The FAQ mixes two verified sources.** "Pricing & payment" is
+  typhoon.coffee's wording verbatim. The other seven categories use approved
+  Typhoon product, sales and service material. If exact parity with the main
+  site matters, paste its current wording over the entry in `FAQ.groups`.
 - **Room areas are resolved:** the site consistently uses 15 / 25 / 40 m² for
   the 2.5 / 5 / 10 PRO.
