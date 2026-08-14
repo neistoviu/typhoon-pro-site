@@ -515,9 +515,8 @@ export const CLIENTS = {
 };
 
 /* --- Savings calculator --------------------------------------------------
-   The calculator itself is the existing standalone page from
-   `typhoon-roi-calculator/`, copied to /calculator and embedded in a frame
-   so its styling stays exactly as built. */
+   The calculator is self-contained in this repository. Its editable labels
+   and assumptions live below; js/calculator.js contains the calculations. */
 
 export const CALCULATOR = {
   eyebrow: 'Running cost',
@@ -662,9 +661,8 @@ export const SERVICE = {
 
 /* --- FAQ -----------------------------------------------------------------
    "Pricing & payment" is the wording from typhoon.coffee verbatim. The other
-   categories are written from `company-knowledge/` — objections.md,
-   specs.md, warranty.md, onboarding.md, software.md, models.md — so the
-   numbers here and the numbers our sales team quotes are the same ones. */
+   categories use verified Typhoon product, sales and service source material.
+   The public copy below is self-contained. */
 
 export const FAQ = {
   eyebrow: 'Questions',
